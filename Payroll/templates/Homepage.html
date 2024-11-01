@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayrollPro - Revolutionary Payroll Solutions</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4CAF50;
+            --accent: #FF6B6B;
+            --background: #f0f2f5;
+            --text: #333;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav:hover {
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 1rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        .auth-button {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .sign-in {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .sign-up {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+            padding: 8rem 0 6rem;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out 0.4s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .cta-button:hover {
+            background-color: #ff8c8c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(255,107,107,0.3);
+        }
+
+        .features, .benefits {
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features::before, .benefits::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary);
+            opacity: 0.1;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card, .benefit-item {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before, .benefit-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: -1;
+        }
+
+        .feature-card:hover::before, .benefit-item:hover::before {
+            opacity: 0.1;
+            transform: translate(25%, 25%);
+        }
+
+        .feature-card:hover, .benefit-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.15);
+        }
+
+        .testimonials {
+            background-color: var(--primary);
+            padding: 6rem 0;
+            color: white;
+            clip-path: polygon(0 15%, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .testimonial-card {
+            background-color: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        footer {
+            background-color: var(--text);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .newsletter-form input[type="email"] {
+            padding: 0.75rem;
+            width: 100%;
+            max-width: 250px;
+            border: none;
+            border-radius: 25px;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-form button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form button:hover {
+            background-color: #ff8c8c;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .auth-buttons {
+                margin-top: 1rem;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#benefits">Benefits</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li class="auth-buttons">
+                    <a href="{% url 'login_form' %}" class="auth-button sign-in" methods="post">Sign In</a>
+                    <a href="{% url 'register_form' %}" class="auth-button sign-up" methods="">Sign Up</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Revolutionary Payroll Solutions</h1>
+            <p>Experience the future of payroll management with cutting-edge technology and unparalleled ease.</p>
+            <a href="#" class="cta-button">Transform Your Payroll</a>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Innovative Features</h2>
+            <div class="grid">
+                <div class="feature-card">
+                    <h3>AI-Powered Automation</h3>
+                    <p>Harness the power of artificial intelligence to streamline your payroll processes like never before.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Real-Time Compliance Updates</h3>
+                    <p>Stay ahead of regulatory changes with our dynamic compliance management system.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Intuitive Employee Dashboard</h3>
+                    <p>Empower your team with a user-friendly portal for seamless information access and management.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <h2>Unparalleled Benefits</h2>
+            <div class="grid">
+                <div class="benefit-item">
+                    <h3>Lightning-Fast Processing</h3>
+                    <p>Reduce payroll processing time by up to 80% with our optimized algorithms.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>Bank-Grade Security</h3>
+                    <p>Rest easy knowing your data is protected by state-of-the-art encryption and security protocols.</p>
+                </div>
+                <div class="benefit-item">
+                    <h3>Seamless Integration</h3>
+                    <p>Effortlessly connect with your existing HR and accounting software for a unified workflow.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <h2>Success Stories</h2>
+            <div class="grid">
+                <div class="testimonial-card">
+                    <p>"PayrollPro has revolutionized our entire HR department. The time savings and accuracy improvements are simply astounding!"</p>
+                    <p><strong>Sarah Johnson</strong>, HR Director, TechInnovate Inc.</p>
+                </div>
+                <div class="testimonial-card">
+                    <p>"The real-time compliance updates have saved us from potential legal headaches multiple times. It's like having a team of experts on standby 24/7."</p>
+                    <p><strong>Michael Chen</strong>, CFO, Global Dynamics Corp.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h3>Get in Touch</h3>
+                    <p>Email: hello@payrollpro.com</p>
+                    <p>Phone: (800) 123-4567</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Connect With Us</h3>
+                    <p><a href="#">Twitter</a></p>
+                    <p><a href="#">LinkedIn</a></p>
+                    <p><a href="#">Facebook</a></p>
+                </div>
+                <div>
+                    <h3>Stay Updated</h3>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Enter your email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <p>&copy; 2024 PayrollPro. Revolutionizing payroll management.</p>
+                <p><a href="#" class="footer-links">Privacy Policy</a> | <a href="#" class="footer-links">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Simple form submission prevention
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thanks for subscribing! Stay tuned for the latest updates.');
+            this.reset();
+        });
+
+        // Navbar background change on scroll
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+            } else {
+                nav.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            }
+        });
+
+        // Animation for feature and benefit cards
+        const cards = document.querySelectorAll('.feature-card, .benefit-item');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry  => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(card => {
+            card.style.opacity = 0;
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

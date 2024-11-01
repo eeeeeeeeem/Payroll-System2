@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+            --green: #4caf50;
+            --red: #f44336;
+            --animation-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: all var(--animation-speed) ease;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all var(--animation-speed) ease;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all var(--animation-speed) ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item i:first-child {
+            font-size: 20px;
+            color: var(--primary-color);
+            transition: all var(--animation-speed) ease;
+            margin-right: 10px;
+            z-index: 2;
+        }
+
+        .menu-item .arrow {
+            position: absolute;
+            right: 15px;
+            transition: transform var(--animation-speed) ease;
+            z-index: 2;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-light);
+            transition: all var(--animation-speed) ease;
+            z-index: 1;
+        }
+
+        .menu-item:hover::before, .menu-item.active::before {
+            left: 0;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            color: var(--primary-color);
+        }
+
+        .menu-item:hover .arrow, .menu-item.active .arrow {
+            transform: translateX(5px);
+        }
+
+        .menu-item.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            display: none;
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+
+        .submenu .menu-item {
+            font-size: 14px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            transition: all var(--animation-speed) ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .greeting {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .time-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .time-info span {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .time-info i {
+            margin-right: 5px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all var(--animation-speed) ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(110, 98, 229, 0.03), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            top: -100%;
+            left: -100%;
+        }
+
+        .stat-title {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-change {
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-change.positive {
+            color: var(--green);
+        }
+
+        .stat-change.negative {
+            color: var(--red);
+        }
+
+        .stat-change::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            margin-right: 5px;
+        }
+
+        .stat-change.positive::before {
+            border-bottom: 5px solid var(--green);
+        }
+
+        .stat-change.negative::before {
+            border-top: 5px solid var(--red);
+        }
+
+        .month-stats {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .month-stats h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-bar-label {
+            width: 120px;
+            font-size: 14px;
+        }
+
+        .stat-bar-value {
+            width: 60px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stat-bar-progress {
+            flex-grow: 1;
+            height: 8px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .stat-bar-progress-inner {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 1s ease-in-out;
+        }
+
+        .employee-status {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .employee-status h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .employee-table th, .employee-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .employee-table th {
+            font-weight: 600;
+            color: #888;
+        }
+
+        .employee-status-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .employee-status-tag.permanent {
+            background-color: var(--green);
+            color: white;
+        }
+
+        .employee-status-tag.contract {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        .employee-composition {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .employee-composition h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-color) 0deg 234deg,
+                #ffc107 234deg 360deg
+            );
+            margin: 0 auto;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .pie-chart:hover {
+            transform: scale(1.05);
+        }
+
+        .pie-legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .pie-legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .pie-legend-label {
+            font-size: 14px;
+        }
+
+        .logout-form {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .logout-button {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all var(--animation-speed) ease;
+            font-weight: 500;
+        }
+
+        .logout-button:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(110, 98, 229, 0.3);
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .background-animation span {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            animation: move 3s linear infinite;
+            border-radius: 50%;
+            opacity: 0.2;
+        }
+
+        .discipline-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            height: 20px;
+        }
+
+        .discipline-bar-inner {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(300px, 300px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="{% url 'dashboard' %}" class="logo">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-HNWzSbDhB0Tmu1CIIZCIjWoIcDjDlM.png" alt="Logo">
+            Payroll Management
+        </a>
+        <div class="menu-item" onclick="window.location.href='{% url 'dashboard' %}'">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+            <i class="fas  fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="loadContent('job_desk')">
+            <i class="fas fa-briefcase"></i> Job Desk
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="toggleSubMenu('employeesSubMenu')">
+            <i class="fas fa-users"></i> Employees
+            <i class="fas fa-chevron-down arrow" id="employeesArrow"></i>
+        </div>
+        <div class="submenu" id="employeesSubMenu">
+            <div class="menu-item" onclick="loadContent('all_employee')">
+                <i class="fas fa-user-friends"></i> All Employee
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+            <div class="menu-item" onclick="loadContent('appointment')">
+                <i class="fas fa-calendar-check"></i> Appointment
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+        </div>
+        <div class="menu-item" onclick="loadContent('payroll')">
+            <i class="fas fa-money-bill-wave"></i> Payroll
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="loadContent('settings')">
+            <i class="fas fa-user-cog"></i> Settings
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+    <div class="main-content" id="contentArea">
+        <div id="dashboard" class="content">
+            <div class="header">
+                <h2 class="greeting">Good to see you, {{ first_name }} {{ last_name }}👋</h2>
+                <div class="time-info">
+                    <span><i class="fas fa-clock"></i> 7:14 AM Punch in</span>
+                    <span><i class="fas fa-clock"></i> 05:00 PM Punch out</span>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-title">Total Employees</div>
+                    <div class="stat-value">856</div>
+                    <div class="stat-change positive">+10.0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Job View</div>
+                    <div class="stat-value">3,342</div>
+                    <div class="stat-change positive">+22.0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Job Applied</div>
+                    <div class="stat-value">77</div>
+                    <div class="stat-change positive">+12.0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Resigned Employees</div>
+                    <div class="stat-value">17</div>
+                    <div class="stat-change negative">-7.0%</div>
+                </div>
+            </div>
+            <div class="month-stats">
+                <h3>This month</h3>
+                <div class="stat-bar">
+                    <div class="stat-bar-label">Total</div>
+                    <div class="stat-bar-progress">
+                        <div class="stat-bar-progress-inner" style="width: 100%;"></div>
+                    </div>
+                    <div class="stat-bar-value">216 hour</div>
+                </div>
+                <div class="stat-bar">
+                    <div class="stat-bar-label">Shortage time</div>
+                    <div class="stat-bar-progress">
+                        <div class="stat-bar-progress-inner" style="width: 10%;"></div>
+                    </div>
+                    <div class="stat-bar-value">23 hour</div>
+                </div>
+                <div class="stat-bar">
+                    <div class="stat-bar-label">Worked time</div>
+                    <div class="stat-bar-progress">
+                        <div class="stat-bar-progress-inner" style="width: 87%;"></div>
+                    </div>
+                    <div class="stat-bar-value">189 hour</div>
+                </div>
+                <div class="stat-bar">
+                    <div class="stat-bar-label">Over time</div>
+                    <div class="stat-bar-progress">
+                        <div class="stat-bar-progress-inner" style="width: 25%;"></div>
+                    </div>
+                    <div class="stat-bar-value">56 hour</div>
+                </div>
+            </div>
+            <div class="employee-status">
+                <h3>Employee Status</h3>
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Department</th>
+                            <th>Age</th>
+                            <th>Discipline</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.department }}</td>
+                            <td>{{ user.age }}</td>
+                            <td>
+                                <div class="discipline-bar">
+                                    <div class="discipline-bar-inner" style="width: {{ user.discipline }}%;">
+                                        {{ user.discipline }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="employee-status-tag {{ user.status|lower }}">{{ user.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="employee-composition">
+                <h3>Employee Composition</h3>
+                <div class="pie-chart"></div>
+                <div class="pie-legend">
+                    <div class="pie-legend-item">
+                        <div class="pie-legend-color" style="background-color: var(--primary-color);"></div>
+                        <div class="pie-legend-label">Male 65%</div>
+                    </div>
+                    <div class="pie-legend-item">
+                        <div class="pie-legend-color" style="background-color: #ffc107;"></div>
+                        <div class="pie-legend-label">Female 35%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="background-animation">
+        <span style="left: 10%; top: 10%;"></span>
+        <span style="left: 20%; top: 60%;"></span>
+        <span style="left: 80%; top: 30%;"></span>
+        <span style="left: 40%; top: 80%;"></span>
+        <span style="left: 65%; top: 70%;"></span>
+    </div>
+
+    <script>
+        function loadContent(section) {
+            fetch(`/api/${section}/`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('contentArea').innerHTML = html;
+                })
+                .catch(error => console.log("Error loading content:", error));
+        }
+
+        function toggleSubMenu(subMenuId) {
+            const subMenu = document.getElementById(subMenuId);
+            const arrow = document.getElementById('employeesArrow');
+            const menuItem = arrow.closest('.menu-item');
+
+            if (subMenu.style.display === 'none' || !subMenu.style.display) {
+                subMenu.style.display = 'block';
+                menuItem.classList.add('open');
+            } else {
+                subMenu.style.display = 'none';
+                menuItem.classList.remove('open');
+            }
+        }
+
+        document.getElementById('employeesSubMenu').style.display = 'none';
+
+        // Animate stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Animate stat bars
+        const statBars = document.querySelectorAll('.stat-bar-progress-inner');
+        setTimeout(() => {
+            statBars.forEach(bar => {
+                bar.style.width = bar.style.width;
+            });
+        }, 500);
+
+        // Background animation
+        const backgroundSpans = document.querySelectorAll('.background-animation span');
+        backgroundSpans.forEach(span => {
+            span.style.left = `${Math.random() * 100}%`;
+            span.style.top = `${Math.random() * 100}%`;
+            span.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            span.style.animationDelay = `${Math.random() * 2}s`;
+        });
+    </script>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
