@@ -27,6 +27,7 @@ class User(AbstractBaseUser):
     employement_start = models.DateField()
     job_title_id = models.IntegerField()
     last_login = models.DateTimeField(null=True, blank=True)  # Add this line
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)  # Add this line
 
     objects = UserManager()
 

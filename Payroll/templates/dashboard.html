@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Dashboard</title>
+    <title>Enhanced Payroll Management Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
@@ -159,6 +159,20 @@
             font-size: 28px;
             font-weight: 600;
             color: var(--primary-color);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
         }
 
         .time-info {
@@ -512,18 +526,30 @@
             .stats {
                 grid-template-columns: 1fr;
             }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            
+
+            .profile-info {
+                margin-top: 15px;
+            }
         }
     </style>
 </head>
-<body>
+<body> 
+    {% load static %}
     <div class="sidebar">
-        <a href="{% url 'dashboard' %}" class="logo">
-            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-HNWzSbDhB0Tmu1CIIZCIjWoIcDjDlM.png" alt="Logo">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
             Payroll Management
         </a>
         <div class="menu-item" onclick="window.location.href='{% url 'dashboard' %}'">
             <i class="fas fa-tachometer-alt"></i> Dashboard
-            <i class="fas  fa-chevron-right arrow"></i>
+            <i class="fas fa-chevron-right arrow"></i>
         </div>
         <div class="menu-item" onclick="loadContent('job_desk')">
             <i class="fas fa-briefcase"></i> Job Desk
@@ -560,9 +586,12 @@
         <div id="dashboard" class="content">
             <div class="header">
                 <h2 class="greeting">Good to see you, {{ first_name }} {{ last_name }}👋</h2>
-                <div class="time-info">
-                    <span><i class="fas fa-clock"></i> 7:14 AM Punch in</span>
-                    <span><i class="fas fa-clock"></i> 05:00 PM Punch out</span>
+                <div class="profile-info">
+                    <img src="{{ profile_picture }}" alt="Profile Picture" class="profile-picture">
+                    <div class="time-info">
+                        <span><i class="fas fa-clock"></i> 7:14 AM Punch in</span>
+                        <span><i class="fas fa-clock"></i> 05:00 PM Punch out</span>
+                    </div>
                 </div>
             </div>
             <div class="stats">

@@ -141,7 +141,7 @@
     <div class="overlay"></div>
     <div class="container">
         <h1>Join Our Team</h1>
-        <form action="{% url 'register' %}" method="post">
+        <form action="{% url 'register' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="first_name">First Name</label>
@@ -182,6 +182,10 @@
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+                <label for="profile_picture">Profile Picture</label>
+                <input type="file" name="profile_picture" accept="image/*">
             </div>
             <button type="submit">Register</button>
         </form>
