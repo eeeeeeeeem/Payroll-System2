@@ -241,13 +241,29 @@
             color: var(--accent);
         }
 
-        .newsletter-form input[type="email"] {
+        .newsletter-form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .newsletter-form input,
+        .newsletter-form textarea {
             padding: 0.75rem;
             width: 100%;
-            max-width: 250px;
             border: none;
             border-radius: 25px;
-            margin-bottom: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .newsletter-form input::placeholder,
+        .newsletter-form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .newsletter-form textarea {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .newsletter-form button {
@@ -263,6 +279,17 @@
         .newsletter-form button:hover {
             background-color: #ff8c8c;
             transform: translateY(-2px);
+        }
+
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .scroll-animate.active {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         @keyframes fadeInUp {
@@ -299,7 +326,7 @@
                 <li><a href="#contact">Contact</a></li>
                 <li class="auth-buttons">
                     <a href="{% url 'login_form' %}" class="auth-button sign-in" methods="post">Sign In</a>
-                    <a href="{% url 'register_form' %}" class="auth-button sign-up" methods="">Sign Up</a>
+                    <a href="{% url 'register_form' %}" class="auth-button sign-up" methods="post">Sign Up</a>
                 </li>
             </ul>
         </div>
@@ -317,15 +344,15 @@
         <div class="container">
             <h2>Innovative Features</h2>
             <div class="grid">
-                <div class="feature-card">
+                <div class="feature-card scroll-animate">
                     <h3>AI-Powered Automation</h3>
                     <p>Harness the power of artificial intelligence to streamline your payroll processes like never before.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card scroll-animate">
                     <h3>Real-Time Compliance Updates</h3>
                     <p>Stay ahead of regulatory changes with our dynamic compliance management system.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card scroll-animate">
                     <h3>Intuitive Employee Dashboard</h3>
                     <p>Empower your team with a user-friendly portal for seamless information access and management.</p>
                 </div>
@@ -337,15 +364,15 @@
         <div class="container">
             <h2>Unparalleled Benefits</h2>
             <div class="grid">
-                <div class="benefit-item">
+                <div class="benefit-item scroll-animate">
                     <h3>Lightning-Fast Processing</h3>
                     <p>Reduce payroll processing time by up to 80% with our optimized algorithms.</p>
                 </div>
-                <div class="benefit-item">
+                <div class="benefit-item scroll-animate">
                     <h3>Bank-Grade Security</h3>
                     <p>Rest easy knowing your data is protected by state-of-the-art encryption and security protocols.</p>
                 </div>
-                <div class="benefit-item">
+                <div class="benefit-item scroll-animate">
                     <h3>Seamless Integration</h3>
                     <p>Effortlessly connect with your existing HR and accounting software for a unified workflow.</p>
                 </div>
@@ -357,11 +384,11 @@
         <div class="container">
             <h2>Success Stories</h2>
             <div class="grid">
-                <div class="testimonial-card">
+                <div class="testimonial-card scroll-animate">
                     <p>"PayrollPro has revolutionized our entire HR department. The time savings and accuracy improvements are simply astounding!"</p>
                     <p><strong>Sarah Johnson</strong>, HR Director, TechInnovate Inc.</p>
                 </div>
-                <div class="testimonial-card">
+                <div class="testimonial-card scroll-animate">
                     <p>"The real-time compliance updates have saved us from potential legal headaches multiple times. It's like having a team of experts on standby 24/7."</p>
                     <p><strong>Michael Chen</strong>, CFO, Global Dynamics Corp.</p>
                 </div>
@@ -372,21 +399,25 @@
     <footer id="contact">
         <div class="container">
             <div class="footer-grid">
-                <div>
+                <div class="scroll-animate">
                     <h3>Get in Touch</h3>
-                    <p>Email: hello@payrollpro.com</p>
+                    <p>Email: payroll@gmail.com</p>
                     <p>Phone: (800) 123-4567</p>
                 </div>
-                <div class="footer-links">
+                <div class="footer-links scroll-animate">
                     <h3>Connect With Us</h3>
                     <p><a href="#">Twitter</a></p>
                     <p><a href="#">LinkedIn</a></p>
                     <p><a href="#">Facebook</a></p>
                 </div>
-                <div>
+                <div class="scroll-animate">
                     <h3>Stay Updated</h3>
-                    <form class="newsletter-form">
-                        <input type="email" placeholder="Enter your email" required>
+                    <form class="newsletter-form" method="post" action="{% url 'send_email' %}">
+                        {% csrf_token %}
+                        <input type="text" name="first_name" placeholder="First Name" required>
+                        <input type="text" name="last_name" placeholder="Last Name" required>
+                        <input type="email" name="email" placeholder="Email Address" required>
+                        <textarea name="concern" placeholder="Any concerns or questions?" required></textarea>
                         <button type="submit">Subscribe</button>
                     </form>
                 </div>
@@ -409,12 +440,7 @@
             });
         });
 
-        // Simple form submission prevention
-        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Thanks for subscribing! Stay tuned for the latest updates.');
-            this.reset();
-        });
+
 
         // Navbar background change on scroll
         window.addEventListener('scroll', function() {
@@ -426,23 +452,27 @@
             }
         });
 
-        // Animation for feature and benefit cards
-        const cards = document.querySelectorAll('.feature-card, .benefit-item');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry  => {
+        // Animation for scroll transitions
+        const scrollAnimates = document.querySelectorAll('.scroll-animate');
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.classList.add('active');
+                } else {
+                    entry.target.classList.remove('active');
                 }
             });
         }, { threshold: 0.1 });
 
-        cards.forEach(card => {
-            card.style.opacity = 0;
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(card);
+        scrollAnimates.forEach(element => {
+            scrollObserver.observe(element);
         });
+
+        function showSuccessAlert(event) {
+            event.preventDefault();
+            alert('Thank you for subscribing! You will receive our latest updates via email.');
+            event.target.submit();
+        }
     </script>
 </body>
 </html>

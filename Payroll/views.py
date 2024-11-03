@@ -1,12 +1,30 @@
 from django.shortcuts import render, redirect
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
-
 from Payroll.models import User
 from Payroll.serializers import UserSerializer
 import jwt, datetime
+from django.core.mail import send_mail
+from django.conf import settings
 
-# Create your views here.
+def send_email(request):
+    if request.method == 'POST':
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        concern = request.POST['concern']
+
+        subject = f"New Concern from {first_name} {last_name}"
+        message = f"First Name: {first_name}\nLast Name: {last_name}\nEmail: {email}\n\n{concern}"
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = ['sijeynoster@gmail.com']
+
+        send_mail(subject, message, from_email, recipient_list)
+
+        return redirect('homepage')
+
+    return render(request, 'homepage.html')
+
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -47,7 +65,6 @@ class LoginView(APIView):
 
         return response
 
-
 def calculate_discipline(age):
     if isinstance(age, int):
         if age >= 18:
@@ -55,6 +72,7 @@ def calculate_discipline(age):
         else:
             return f"{10 + (age % 41)}"
     return "N/A"
+
 def login_form(request):
     return render(request, 'login.html')
 
@@ -70,6 +88,7 @@ def calculate_age(born):
     if born > today:
         return "N/A"
     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
 class UserView(APIView):
     def get(self, request):
         token = request.COOKIES.get('jwt')
@@ -92,7 +111,7 @@ class UserView(APIView):
                 'department': u.job_title_id,
                 'age': calculate_age(u.date_of_birth),
                 'discipline': calculate_discipline(calculate_age(u.date_of_birth)),
-                'status': 'Permenant' if u.job_title_id == 1 else 'Contract',
+                'status': 'Permanent' if u.job_title_id == 1 else 'Contract',
                 'profile_picture': u.profile_picture.url if u.profile_picture else None
             }
             for u in users
@@ -124,6 +143,7 @@ def get_user_from_token(request):
 
     user = User.objects.filter(id=payload['id']).first()
     return user
+
 def Homepage(request):
     return render(request, 'homepage.html')
 
@@ -162,8 +182,7 @@ def payroll(request):
         'last_name': user.last_name
     })
 
-
-def settings(request):
+def settings_user(request):
     user = get_user_from_token(request)
     return render(request, 'settings.html', {
         'first_name': user.first_name,
