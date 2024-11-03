@@ -4,7 +4,7 @@ from Payroll.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'cityId', 'email', 'employement_start', 'job_title_id', 'password']
+        fields = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'cityId', 'email', 'employement_start', 'job_title_id', 'password', 'profile_picture']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

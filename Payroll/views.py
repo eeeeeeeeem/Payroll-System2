@@ -93,6 +93,7 @@ class UserView(APIView):
                 'age': calculate_age(u.date_of_birth),
                 'discipline': calculate_discipline(calculate_age(u.date_of_birth)),
                 'status': 'Permenant' if u.job_title_id == 1 else 'Contract',
+                'profile_picture': u.profile_picture.url if u.profile_picture else None
             }
             for u in users
         ]
@@ -100,6 +101,7 @@ class UserView(APIView):
         return render(request, 'dashboard.html', {
             'first_name': serializer.data['first_name'],
             'last_name': serializer.data['last_name'],
+            'profile_picture': serializer.data['profile_picture'],
             'users': user_data
         })
 
