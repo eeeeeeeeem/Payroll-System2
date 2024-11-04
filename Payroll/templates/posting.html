@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Page</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+            --green: #4caf50;
+            --red: #f44336;
+            --animation-speed: 0.3s;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .post-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .post-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-label {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .post-button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .post {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .post-author {
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .post-content {
+            margin-bottom: 10px;
+        }
+        .post-image {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .post-actions button {
+            background-color: transparent;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        .comments {
+            margin-top: 10px;
+        }
+        .comment {
+            background-color: var(--primary-light);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .comment-form {
+            display: flex;
+            margin-top: 10px;
+        }
+        .comment-input {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .comment-button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% load static %}
+    <header class="header">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+        <div class="profile-info">
+            <img src="{{ profile_picture }}" alt="Profile Picture" class="profile-picture">
+            <span>{{ first_name }} {{ last_name }}</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Post here</h1>
+        <div class="post-form">
+            <form id="post-form" method="post" enctype="multipart/form-data" action="{% url 'create_post' %}">
+                {% csrf_token %}
+                <textarea name="content" class="post-input" placeholder="Write something..."></textarea>
+                <label for="image-upload" class="file-label">Add Image</label>
+                <input type="file" id="image-upload" name="image" class="file-input">
+                <button type="submit" class="post-button">Post</button>
+            </form>
+        </div>
+
+        <!-- Container for all posts -->
+        <div id="posts-container">
+            {% for post in posts %}
+                {% include 'post_partial.html' with post=post %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,12 +1,80 @@
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.views.decorators.http import require_POST
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
-from Payroll.models import User
+
+from Payroll.forms import PostForm
+from Payroll.models import User, Post, Comment
 from Payroll.serializers import UserSerializer
 import jwt, datetime
 from django.core.mail import send_mail
 from django.conf import settings
 
+
+def create_post(request):
+    token = request.COOKIES.get('jwt')
+    if not token:
+        raise AuthenticationFailed("Unauthenticated")
+
+    try:
+        payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed("Unauthenticated")
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = User.objects.get(id=payload['id'])  # Setting the user from the token payload
+            post.save()
+            return redirect('posting_user')
+    else:
+        form = PostForm()
+    return render(request, 'posting.html', {'form': form})
+def post_list(request):
+    user = get_user_from_token(request)
+    posts = Post.objects.all().order_by('-created_at')
+    return render(request, 'posting.html', {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None,
+        'posts': posts
+    })
+
+def like_post(request, post_id):
+    user = get_user_from_token(request)
+    post = Post.objects.get(id=post_id)
+    if user in post.likes.all():
+        post.likes.remove(user)
+    else:
+        post.likes.add(user)
+    return JsonResponse({'likes_count': post.likes.count()})
+
+def add_comment(request, post_id):
+    user = get_user_from_token(request)
+    post = Post.objects.get(id=post_id)
+    content = request.POST.get('content')
+    if not content:
+        return JsonResponse({'error': 'Content cannot be empty'}, status=400)
+    comment = Comment.objects.create(author=user, post=post, content=content)
+    return JsonResponse({
+        'author': user.first_name,
+        'content': comment.content
+    })
+
+
+def posting_user(request):
+    user = get_user_from_token(request)
+    posts = Post.objects.all().order_by('-created_at')
+    return render(request, 'posting.html', {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None,
+        'posts': posts
+    })
 def send_email(request):
     if request.method == 'POST':
         first_name = request.POST['first_name']
@@ -187,4 +255,12 @@ def settings_user(request):
     return render(request, 'settings.html', {
         'first_name': user.first_name,
         'last_name': user.last_name
+    })
+
+def posting_user(request):
+    user = get_user_from_token(request)
+    return render(request, 'posting.html', {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None
     })

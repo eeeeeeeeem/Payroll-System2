@@ -1,0 +1,97 @@
+{% csrf_token %}
+<div class="post">
+    <div class="post-header">
+        <img src="{{ post.author.profile_picture.url }}" alt="Author" class="profile-picture">
+        <span class="post-author">{{ post.author.first_name }} {{ post.author.last_name }}</span>
+    </div>
+    <div class="post-content">{{ post.content }}</div>
+    
+    {% if post.image %}
+    <img src="{{ post.image.url }}" alt="Post image" class="post-image">
+    {% endif %}
+    
+    <div class="post-actions">
+        <button onclick="likePost({{ post.id }})">
+            <i class="fas fa-thumbs-up"></i> Like (<span id="likes-{{ post.id }}">{{ post.likes.count }}</span>)
+        </button>
+        <button onclick="toggleComments({{ post.id }})">
+            <i class="fas fa-comment"></i> Comment
+        </button>
+    </div>
+    <div class="comments" id="comments-{{ post.id }}" style="display: none;">
+        <div id="comments-list-{{ post.id }}">
+            {% for comment in post.comments.all %}
+            <div class="comment">
+                <strong>{{ comment.author.first_name }}:</strong> {{ comment.content }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="comment-form">
+            <input type="text" class="comment-input" id="comment-input-{{ post.id }}" placeholder="Write a comment...">
+            <button class="comment-button" onclick="addComment({{ post.id }})">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+function likePost(postId) {
+    fetch(`/api/post_list/like_post/${postId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.likes_count !== undefined) {
+            document.getElementById(`likes-${postId}`).innerText = data.likes_count;
+        } else {
+            alert("Failed to like the post.");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function addComment(postId) {
+    const content = document.getElementById(`comment-input-${postId}`).value;
+    if (!content) {
+        alert("Comment content cannot be empty.");
+        return;
+    }
+    fetch(`/api/post_list/add_comment/${postId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken,
+        },
+        body: new URLSearchParams({
+            'content': content
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            const commentList = document.getElementById(`comments-list-${postId}`);
+            const newComment = document.createElement('div');
+            newComment.classList.add('comment');
+            newComment.innerHTML = `<strong>${data.author}:</strong> ${data.content}`;
+            commentList.appendChild(newComment);
+            document.getElementById(`comment-input-${postId}`).value = '';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function toggleComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    if (commentsSection.style.display === 'none') {
+        commentsSection.style.display = 'block';
+    } else {
+        commentsSection.style.display = 'none';
+    }
+}
+</script>
