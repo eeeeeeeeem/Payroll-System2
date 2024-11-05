@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 
-from Payroll.forms import PostForm
+from Payroll.forms import PostForm, UserSettingsForm
 from Payroll.models import User, Post, Comment
 from Payroll.serializers import UserSerializer
 import jwt, datetime
@@ -63,6 +63,27 @@ def add_comment(request, post_id):
     return JsonResponse({
         'author': user.first_name,
         'content': comment.content
+    })
+
+def settings_user(request):
+    try:
+        user = get_user_from_token(request)
+    except AuthenticationFailed:
+        return redirect('login_form')
+
+    if request.method == 'POST':
+        form = UserSettingsForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('settings_user')
+    else:
+        form = UserSettingsForm(instance=user)
+
+    return render(request, 'settings.html', {
+        'form': form,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None
     })
 
 
@@ -250,12 +271,6 @@ def payroll(request):
         'last_name': user.last_name
     })
 
-def settings_user(request):
-    user = get_user_from_token(request)
-    return render(request, 'settings.html', {
-        'first_name': user.first_name,
-        'last_name': user.last_name
-    })
 
 def posting_user(request):
     user = get_user_from_token(request)
