@@ -25,6 +25,7 @@ class User(AbstractBaseUser):
     address = models.CharField(max_length=255)
     cityId = models.CharField(max_length=255)
     employement_start = models.DateField(null=True, blank=True)
+    employement_end = models.DateField(null=True, blank=True)
     job_title_id = models.IntegerField(null=True, blank=True)
     last_login = models.DateTimeField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
