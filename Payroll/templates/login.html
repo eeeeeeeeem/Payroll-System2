@@ -170,7 +170,7 @@
     <div class="login-container">
         <h1>Welcome to<br>Payroll Management</h1>
         <div class="social-login">
-            <button type="button" onclick="window.location.href='{% url 'social:begin' 'google-oauth2' %}'">
+            <button type="button" onclick="socialLogin('Google')">
                 <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google logo">
                 Sign in with Google
             </button>
@@ -193,6 +193,10 @@
     </div>
 
     <script>
+        
+        function socialLogin(provider) {
+            alert(`Sign in with ${provider} is not available at the moment`);
+        }
         function validateForm() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
