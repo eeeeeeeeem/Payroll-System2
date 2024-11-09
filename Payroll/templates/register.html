@@ -15,15 +15,15 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #4b0082, #8a2be2, #6a0dad, #9370db);
-            background-size: 400% 400%;
+            background: linear-gradient(135deg, #ffffff, #f5f0ff);
+            background-size: 200% 200%;
             animation: gradientAnimation 12s ease infinite;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
-            overflow: hidden;
+            color: #4b0082;
+            overflow-y: auto;
         }
 
         @keyframes gradientAnimation {
@@ -33,7 +33,7 @@
         }
 
         .overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -54,6 +54,7 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             text-align: center;
             transition: transform 0.3s ease;
+            margin: 20px 0;
         }
 
         .container:hover {
@@ -88,7 +89,7 @@
             transition: color 0.3s ease;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -100,7 +101,7 @@
             transition: background 0.3s, border 0.3s;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border: 1px solid #9370db;
             background: rgba(255, 255, 255, 0.25);
         }
@@ -135,13 +136,72 @@
                 grid-column: span 1;
             }
         }
+        
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: background 0.3s, border 0.3s;
+        }
+
+        select option {
+            background: #4b0082;
+            color: white;
+            padding: 10px;
+        }
+
+        /* Make the dropdown text wrap if needed */
+        select option {
+            white-space: normal;
+            min-height: 40px;
+            padding: 8px 12px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div class="overlay"></div>
     <div class="container">
         <h1>Join Our Team</h1>
-        <form id="registrationForm" action="{% url 'register' %}" method="post" enctype="multipart/form-data">
+        {% if form.errors %}
+        <div class="error-message">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p>{{ field.label }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if messages %}
+        <div class="messages" style="margin-bottom: 20px;">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+                     style="color: {% if message.tags == 'success' %}#4BB543{% else %}#ff3333{% endif %}; 
+                            background: rgba(255, 255, 255, 0.9);
+                            padding: 10px;
+                            border-radius: 5px;
+                            margin-bottom: 10px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form id="registrationForm" action="{% url 'register_form' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="first_name">First Name</label>
@@ -180,8 +240,15 @@
                 <input type="date" id="employement_end" name="employement_end">
             </div>
             <div class="form-group">
-                <label for="job_title_id">Job Title ID</label>
-                <input type="number" name="job_title_id" placeholder="101" required>
+                <label for="job_title">Job Title</label>
+                <select name="job_title" id="job_title" required>
+                    <option value="">Select a job title</option>
+                    {% for job in job_titles %}
+                        <option value="{{ job.job_title_id }}">
+                            {{ job.title }} ({{ job.start_date|date:"M d, Y" }} - {{ job.end_date|date:"M d, Y" }})
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
@@ -191,33 +258,97 @@
                 <label for="profile_picture">Profile Picture</label>
                 <input type="file" name="profile_picture" accept="image/*">
             </div>
-            <button id="submitButton" type="submit" disabled>Register</button>
+            <button id="submitButton" type="submit">
+                <span class="button-text">Register</span>
+                <span class="loading-spinner" style="display: none;">Loading...</span>
+            </button>
         </form>
     </div>
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("registrationForm");
             const submitButton = document.getElementById("submitButton");
             const startDateInput = document.getElementById("employement_start");
             const endDateInput = document.getElementById("employement_end");
+            const jobTitleSelect = document.getElementById("job_title");
             
-            // Check if all fields are filled
+            form.addEventListener("submit", function(e) {
+                const submitBtn = this.querySelector("button[type='submit']");
+                const buttonText = submitBtn.querySelector(".button-text");
+                const loadingSpinner = submitBtn.querySelector(".loading-spinner");
+                
+                // Disable the button and show loading state
+                submitBtn.disabled = true;
+                buttonText.style.display = "none";
+                loadingSpinner.style.display = "inline-block";
+            });
+            
+            const profilePicInput = document.querySelector('input[name="profile_picture"]');
+            profilePicInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File size must be less than 5MB');
+                        e.target.value = '';
+                    }
+                    
+                    // Check file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('Please select an image file');
+                        e.target.value = '';
+                    }
+                }
+            });
+
+            // Create an object to store job dates
+            const jobDates = {
+                {% for job in job_titles %}
+                    "{{ job.job_title_id }}": {
+                        start: "{{ job.start_date|date:'Y-m-d' }}",
+                        end: "{{ job.end_date|date:'Y-m-d' }}"
+                    },
+                {% endfor %}
+            };
+
+            // Auto-fill dates when job title is selected
+            jobTitleSelect.addEventListener("change", function() {
+                const selectedJob = jobDates[this.value];
+                if (selectedJob) {
+                    startDateInput.value = selectedJob.start;
+                    endDateInput.value = selectedJob.end;
+                    
+                    // Disable date inputs if job title is selected
+                    startDateInput.readOnly = true;
+                    endDateInput.readOnly = true;
+                } else {
+                    // Clear and enable date inputs if no job is selected
+                    startDateInput.value = "";
+                    endDateInput.value = "";
+                    startDateInput.readOnly = false;
+                    endDateInput.readOnly = false;
+                }
+            });
+
+            // Form validation (your existing code)
             form.addEventListener("input", function () {
                 const allFilled = Array.from(form.elements).every(input => {
                     if (input.type === "file") return true;
-                    return input.type !== "submit" && input.value;
+                    if (input.type === "submit") return true;
+                    if (input.id === "employement_end") return true;
+                    return input.hasAttribute("required") ? input.value.trim() !== "" : true;
                 });
+                
                 submitButton.disabled = !allFilled;
             });
 
-            // Date validation for end date
+            // Employment date validation
             startDateInput.addEventListener("change", function () {
                 endDateInput.min = startDateInput.value;
             });
 
             endDateInput.addEventListener("change", function () {
-                if (endDateInput.value < startDateInput.value) {
+                if (endDateInput.value && endDateInput.value < startDateInput.value) {
                     alert("End date cannot be before start date.");
                     endDateInput.value = "";
                 }

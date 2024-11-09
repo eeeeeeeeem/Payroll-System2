@@ -1,13 +1,16 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
+from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Payroll.forms import PostForm, UserSettingsForm
-from Payroll.models import User, Post, Comment
+from Payroll.models import User, Post, Comment, JobTitle
 from Payroll.serializers import UserSerializer
 import jwt, datetime
 from django.core.mail import send_mail
@@ -117,13 +120,29 @@ def send_email(request):
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return redirect('login_form')
+        if serializer.is_valid():
+            serializer.save()
+            return redirect('login_form')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def register_form(request):
-    return render(request, 'register.html')
+    job_titles = JobTitle.objects.all().order_by('start_date')
 
+    if request.method == 'POST':
+        form = UserSettingsForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'Registration successful! Please login.')
+            return redirect('login_form')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserSettingsForm()
+
+    return render(request, 'register.html', {'form': form, 'job_titles': job_titles})
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -200,7 +219,7 @@ class UserView(APIView):
                 'department': u.job_title_id,
                 'age': calculate_age(u.date_of_birth),
                 'discipline': calculate_discipline(calculate_age(u.date_of_birth)),
-                'status': 'Permanent' if u.job_title_id == 1 else 'Contract',
+                'status': 'Permanent' if u.job_title_id % 2 == 0 else 'Contract',
                 'profile_picture': u.profile_picture.url if u.profile_picture else None
             }
             for u in users
@@ -279,3 +298,28 @@ def posting_user(request):
         'last_name': user.last_name,
         'profile_picture': user.profile_picture.url if user.profile_picture else None
     })
+
+
+#JOB TITLE MODEL
+def job_title_register(request):
+    return render(request, 'job_title.html')
+
+
+def job_title_create(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        if title and start_date and end_date:
+            JobTitle.objects.create(title=title, start_date=start_date, end_date=end_date)
+            return redirect('register_form')
+        else:
+            return render(request, 'job_title.html', {'error': 'All fields are required'})
+
+    return render(request, 'job_title.html')
+
+
+
+
+
