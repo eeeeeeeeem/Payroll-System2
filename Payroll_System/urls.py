@@ -24,6 +24,7 @@ from Payroll.views import Homepage
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('Payroll.urls')),
+    path('', include('Payroll.urls')),
     path('', Homepage, name='homepage'),
 ]
 
