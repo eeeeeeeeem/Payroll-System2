@@ -141,7 +141,7 @@
     <div class="overlay"></div>
     <div class="container">
         <h1>Join Our Team</h1>
-        <form action="{% url 'register' %}" method="post" enctype="multipart/form-data">
+        <form id="registrationForm" action="{% url 'register' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="first_name">First Name</label>
@@ -173,7 +173,11 @@
             </div>
             <div class="form-group">
                 <label for="employement_start">Employment Start Date</label>
-                <input type="date" name="employement_start" required>
+                <input type="date" id="employement_start" name="employement_start" required>
+            </div>
+            <div class="form-group">
+                <label for="employement_end">Employment End Date</label>
+                <input type="date" id="employement_end" name="employement_end">
             </div>
             <div class="form-group">
                 <label for="job_title_id">Job Title ID</label>
@@ -187,8 +191,38 @@
                 <label for="profile_picture">Profile Picture</label>
                 <input type="file" name="profile_picture" accept="image/*">
             </div>
-            <button type="submit">Register</button>
+            <button id="submitButton" type="submit" disabled>Register</button>
         </form>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("registrationForm");
+            const submitButton = document.getElementById("submitButton");
+            const startDateInput = document.getElementById("employement_start");
+            const endDateInput = document.getElementById("employement_end");
+            
+            // Check if all fields are filled
+            form.addEventListener("input", function () {
+                const allFilled = Array.from(form.elements).every(input => {
+                    if (input.type === "file") return true;
+                    return input.type !== "submit" && input.value;
+                });
+                submitButton.disabled = !allFilled;
+            });
+
+            // Date validation for end date
+            startDateInput.addEventListener("change", function () {
+                endDateInput.min = startDateInput.value;
+            });
+
+            endDateInput.addEventListener("change", function () {
+                if (endDateInput.value < startDateInput.value) {
+                    alert("End date cannot be before start date.");
+                    endDateInput.value = "";
+                }
+            });
+        });
+    </script>
 </body>
 </html>
