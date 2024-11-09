@@ -2,11 +2,14 @@ from tkinter.font import names
 from . import views
 from django.urls import path
 from .views import RegisterView, register_form, LoginView, login_form, UserView, LogoutView, job_desk, employees, \
-    all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post
+    all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post, \
+    job_title_register, job_title_create
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('register/form/', register_form, name='register_form'),
+    path('register/job/', job_title_register, name='job_title_register'),
+    path('job_title/create/', job_title_create, name='job_title_create'),
     path('login/', LoginView.as_view(), name='login'),
     path('login/form/', login_form, name='login_form'),
     path('dashboard/', UserView.as_view(), name='dashboard'),

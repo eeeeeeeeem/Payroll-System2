@@ -16,6 +16,16 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
 
+
+class JobTitle(models.Model):
+    job_title_id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return self.title
+
 class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
@@ -26,14 +36,28 @@ class User(AbstractBaseUser):
     cityId = models.CharField(max_length=255)
     employement_start = models.DateField(null=True, blank=True)
     employement_end = models.DateField(null=True, blank=True)
-    job_title_id = models.IntegerField(null=True, blank=True)
     last_login = models.DateTimeField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    job_title = models.ForeignKey(JobTitle, on_delete=models.CASCADE, related_name='employees', default=1)
 
     objects = UserManager()
 
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'cityId', 'employement_start', 'job_title_id']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'cityId', 'employement_start', 'job_title', 'employement_end']
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+class EmploymentTerms(models.Model):
+    id = models.AutoField(primary_key=True)
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="employment_terms")
+    agreed_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    salary_start_date = models.DateField()
+    salary_end_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.employee.first_name} {self.employee.last_name} - {self.agreed_salary}"
 
 
 class Post(models.Model):
