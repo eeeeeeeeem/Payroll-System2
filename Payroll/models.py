@@ -20,14 +20,14 @@ class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     cityId = models.CharField(max_length=255)
-    employement_start = models.DateField()
-    job_title_id = models.IntegerField()
-    last_login = models.DateTimeField(null=True, blank=True)  # Add this line
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)  # Add this line
+    employement_start = models.DateField(null=True, blank=True)
+    job_title_id = models.IntegerField(null=True, blank=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
 
     objects = UserManager()
 
