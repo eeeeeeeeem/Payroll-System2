@@ -319,6 +319,29 @@ def job_title_create(request):
 
     return render(request, 'job_title.html')
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import JobTitle
+
+@login_required
+def add_job(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        location = request.POST['location']
+        job_type = request.POST['job_type']
+        salary = request.POST['salary']
+        description = request.POST['description']
+
+        JobTitle.objects.create(
+            title=title,
+            location=location,
+            job_type=job_type,
+            salary=salary,
+            description=description
+        )
+        return redirect('job_desk')
+    return render(request, 'job_desk.html')
+
 
 
 
