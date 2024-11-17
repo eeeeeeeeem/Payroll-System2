@@ -1,4 +1,152 @@
-<div class="content">
-    <h2>All Employee</h2>
-    <!-- All Employee content here -->
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Employees</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+            --green: #4caf50;
+            --red: #f44336;
+            --animation-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        .discipline-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            height: 20px;
+        }
+
+        .discipline-bar-inner {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .employee-status-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .employee-status-tag.permanent {
+            background-color: var(--green);
+            color: white;
+        }
+
+        .employee-status-tag.contract {
+            background-color: #ffc107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>All Employees</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Profile Picture</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Department</th>
+                    <th>Age</th>
+                    <th>Discipline</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td><img src="{{ employee.profile_picture }}" alt="Profile Picture" class="profile-picture"></td>
+                    <td>{{ employee.first_name }}</td>
+                    <td>{{ employee.last_name }}</td>
+                    <td>{{ employee.department }}</td>
+                    <td>{{ employee.age }}</td>
+                    <td>
+                        <div class="discipline-bar">
+                            <div class="discipline-bar-inner" style="width: {{ employee.discipline }}%;">
+                                {{ employee.discipline }}%
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="employee-status-tag {{ employee.status|lower }}">{{ employee.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

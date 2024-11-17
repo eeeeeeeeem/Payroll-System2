@@ -341,6 +341,26 @@ def add_job(request):
         )
         return redirect('job_desk')
     return render(request, 'job_desk.html')
+def all_employee(request):
+    user = get_user_from_token(request)
+    employees = User.objects.all()
+    employee_data = [
+        {
+            'first_name': emp.first_name,
+            'last_name': emp.last_name,
+            'profile_picture': emp.profile_picture.url if emp.profile_picture else None,
+            'department': emp.job_title_id,
+            'age': calculate_age(emp.date_of_birth),
+            'discipline': calculate_discipline(calculate_age(emp.date_of_birth)),
+            'status': 'Permanent' if emp.job_title_id % 2 == 0 else 'Contract'
+        }
+        for emp in employees
+    ]
+    return render(request, 'all_employee.html', {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'employees': employee_data
+    })
 
 
 
