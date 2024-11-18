@@ -2,25 +2,319 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Settings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Cool Settings</title>
+    <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #2c3e50;
+            --container-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --button-bg: #9b87f5;
+            --button-hover: #8674e1;
+            --success-bg: #2ecc71;
+            --sidebar-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            transition: all 0.5s ease;
+            overflow-y: auto;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--button-bg);
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .nav-item.active {
+            background: var(--button-bg);
+            color: white;
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 2rem;
+            margin: 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--button-bg);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        h2:hover::after {
+            width: 100%;
+        }
+
+        /* Style for Django form */
+        form p {
+            margin-bottom: 1rem;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        form input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        form input:focus {
+            outline: none;
+            border-color: var(--button-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(155, 135, 245, 0.2);
+        }
+
+        button {
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(155, 135, 245, 0.4);
+        }
+
+        .dark-mode {
+            --bg-color: #1a1f36;
+            --text-color: #ffffff;
+            --container-bg: rgba(41, 49, 79, 0.9);
+            --input-bg: rgba(41, 49, 79, 0.95);
+            --sidebar-bg: rgba(41, 49, 79, 0.95);
+            --button-bg: #7b5af1;
+            --button-hover: #6a49e3;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #9b87f5, #8674e1);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success-bg);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .success-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-<div>
-    <h2>Settings</h2>
-    <div>
-        <h3>User Settings</h3>
-        <p>Manage user roles, permissions, and account settings here.</p>
-        <p>User: {{ first_name }} {{ last_name }}</p>
-        <form id="settingsForm" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div style="text-align: right; margin-top: 30px;">
-                <button type="submit" style="background-color: #6c5ce7; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">
-                    Save Changes
-                </button>
+    <div class="animated-bg"></div>
+    <button id="darkModeToggle">🌓</button>
+
+    <div class="layout">
+        <div class="sidebar">
+            <h2>Settings</h2>
+            <nav>
+                <div class="nav-item active">
+                    <span>👤</span>
+                    Profile
+                </div>
+               <div class="nav-item">
+                    <span>🚪</span>
+                    Logout
+                </div>
+                <div class="nav-item">
+                    <span>🏠</span>
+                    Homepage
+                </div>
+            </nav>
+        </div>
+
+        <div class="container">
+            <div class="content">
+                <h2>Profile Settings</h2>
+                <p>Manage your awesome profile settings</p>
+
+                <form id="settingsForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button type="submit" id="saveButton">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
-</div>
+
+    <div id="successMessage" class="success-message">
+        Settings saved successfully! 🎉
+    </div>
+
+     <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const animatedBg = document.querySelector('.animated-bg');
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                animatedBg.style.background = 'linear-gradient(-45deg, #4a69bd, #6a89cc, #7b5af1, #6a49e3)';
+            } else {
+                animatedBg.style.background = 'linear-gradient(-45deg, #ff9a9e, #fad0c4, #9b87f5, #8674e1)';
+            }
+        });
+
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const saveButton = document.getElementById('saveButton');
+            const successMessage = document.getElementById('successMessage');
+
+            saveButton.innerHTML = 'Saving...';
+            saveButton.disabled = true;
+
+            setTimeout(() => {
+                saveButton.innerHTML = 'Save Changes';
+                saveButton.disabled = false;
+
+                successMessage.classList.add('show');
+
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 3000);
+            }, 1500);
+        });
+
+        // Make nav items interactive
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
