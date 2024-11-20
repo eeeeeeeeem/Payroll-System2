@@ -95,7 +95,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'payroll_system',
         'USER': 'root',
-        'PASSWORD': 'vanessgwapo',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
         'PORT': '3306',
     }

@@ -93,3 +93,25 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.author.first_name} - {self.content[:20]}"
+
+
+class SalaryPayment(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='salary_payments')
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        ordering = ['-start_date']
+
+    def __str__(self):
+        return f"Salary for {self.user.first_name} {self.user.last_name} from {self.start_date} to {self.end_date}"
+
+    def clean(self):
+        if self.start_date >= self.end_date:
+            raise ValidationError(_('End date must be after start date'))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Validates the model fields
+        super().save(*args, **kwargs)

@@ -30,4 +30,9 @@ urlpatterns = [
     path('add_job/', add_job, name='add_job'),
     path('add_salary/', views.add_salary, name='add_salary'),
     path('register/employment_terms/', employment_terms_register, name='employment_terms_register'),
+
+    path('salary-payments/', views.salary_payment_list, name='salary_payment_list'),
+    path('salary-payments/', views.salary_payment_list, name='salary_payment_list'),
+    path('salary-payments/create/', views.salary_payment_create, name='salary_payment_create'),
+    path('salary-payments/delete/<int:pk>/', views.salary_payment_delete, name='salary_payment_delete'),
 ]
