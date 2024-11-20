@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Department History</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+            --green: #4caf50;
+            --red: #f44336;
+            --animation-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color var(--animation-speed);
+        }
+
+        button:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Department History</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.department.label_tag }} {{ form.department }}
+            {{ form.employee.label_tag }} {{ form.employee }}
+            {{ form.start_date.label_tag }}
+            <input type="date" name="start_date" id="id_start_date" min="">
+            {{ form.end_date.label_tag }}
+            <input type="date" name="end_date" id="id_end_date" min="">
+            <button type="submit">Create</button>
+        </form>
+        <script>
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split('T')[0];
+
+            // Set the minimum value for start date to today
+            const startDateInput = document.getElementById('id_start_date');
+            const endDateInput = document.getElementById('id_end_date');
+            startDateInput.min = today;
+
+            // Update the minimum value for end date based on selected start date
+            startDateInput.addEventListener('change', function () {
+                const selectedStartDate = startDateInput.value;
+                endDateInput.min = selectedStartDate;
+            });
+
+            // Initialize end date's minimum value to today as a fallback
+            endDateInput.min = today;
+        </script>
+    </div>
+</body>
+</html>

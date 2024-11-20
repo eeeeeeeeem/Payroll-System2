@@ -486,7 +486,60 @@ def add_salary(request):
 
     return redirect('dashboard')
 
+from Payroll.forms import DepartmentForm, DepartmentHistoryForm
+
+def create_department(request):
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('all_employee')
+    else:
+        form = DepartmentForm()
+    return render(request, 'create_department.html', {'form': form})
+
+def create_department_history(request):
+    if request.method == 'POST':
+        form = DepartmentHistoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('all_employee')
+    else:
+        form = DepartmentHistoryForm()
+    return render(request, 'create_department_history.html', {'form': form})
+
+from Payroll.models import Department, DepartmentHistory
+
+def department_list(request):
+    departments = Department.objects.all()
+    return render(request, 'department_list.html', {'departments': departments})
+
+def department_history_list(request):
+    department_histories = DepartmentHistory.objects.all()
+    return render(request, 'department_history_list.html', {'department_histories': department_histories})
+
+from django.urls import reverse
+
+def create_department(request):
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('department_list'))
+    else:
+        form = DepartmentForm()
+    return render(request, 'create_department.html', {'form': form})
 
 
+
+def create_department_history(request):
+    if request.method == 'POST':
+        form = DepartmentHistoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('department_history_list'))
+    else:
+        form = DepartmentHistoryForm()
+    return render(request, 'create_department_history.html', {'form': form})
 
 

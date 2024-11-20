@@ -115,3 +115,20 @@ class SalaryPayment(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()  # Validates the model fields
         super().save(*args, **kwargs)
+
+class Department(models.Model):
+    id = models.AutoField(primary_key=True)
+    department_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.department_name
+
+class DepartmentHistory(models.Model):
+    id = models.AutoField(primary_key=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    employee = models.ForeignKey(User, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.department.department_name} - {self.employee.first_name} {self.employee.last_name}"

@@ -88,7 +88,7 @@ class UserSettingsForm(forms.ModelForm):
             'job_title',
             'password'
         ]
-        exclude = ['password']
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -141,3 +141,17 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['content', 'image']
+
+from django import forms
+from Payroll.models import Department, DepartmentHistory
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['department_name']
+
+class DepartmentHistoryForm(forms.ModelForm):
+    class Meta:
+        model = DepartmentHistory
+        fields = ['department', 'employee', 'start_date', 'end_date']
+
