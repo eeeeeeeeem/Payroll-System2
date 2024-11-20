@@ -2,25 +2,348 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
+    {% load static %}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item i:first-child {
+            font-size: 20px;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            z-index: 2;
+        }
+
+        .menu-item .arrow {
+            position: absolute;
+            right: 15px;
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-light);
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .menu-item:hover::before, .menu-item.active::before {
+            left: 0;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            color: var(--primary-color);
+        }
+
+        .menu-item:hover .arrow, .menu-item.active .arrow {
+            transform: translateX(5px);
+        }
+
+        .menu-item.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            display: none;
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+
+        .submenu .menu-item {
+            font-size: 14px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-container:hover {
+            transform: scale(1.02);
+        }
+
+        .settings-container h2 {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 26px;
+            margin-bottom: 25px;
+        }
+
+        .settings-container h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .settings-container p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .settings-container input[type="text"],
+        .settings-container input[type="email"],
+        .settings-container input[type="date"],
+        .settings-container select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+        .settings-container input[type="text"]:focus,
+        .settings-container input[type="email"]:focus,
+        .settings-container input[type="date"]:focus,
+        .settings-container select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(110, 98, 229, 0.3);
+            outline: none;
+        }
+
+        .button-container {
+            text-align: right;
+            margin-top: 30px;
+        }
+
+        .button-container button {
+            background: linear-gradient(135deg, #6e62e5, #8e7ff0);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(110, 98, 229, 0.2);
+        }
+
+        .button-container button:hover {
+            background: linear-gradient(135deg, #8e7ff0, #6e62e5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(110, 98, 229, 0.3);
+        }
+
+        .settings-container input[type="file"] {
+            margin-top: 10px;
+        }
+
+        .logout-form {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .logout-button {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .logout-button:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(110, 98, 229, 0.3);
+        }
+    </style>
 </head>
 <body>
-<div>
-    <h2>Settings</h2>
-    <div>
-        <h3>User Settings</h3>
-        <p>Manage user roles, permissions, and account settings here.</p>
-        <p>User: {{ first_name }} {{ last_name }}</p>
-        <form id="settingsForm" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div style="text-align: right; margin-top: 30px;">
-                <button type="submit" style="background-color: #6c5ce7; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px;">
-                    Save Changes
-                </button>
+    <div class="sidebar">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+        <div class="menu-item" onclick="window.location.href='{% url 'dashboard' %}'">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="loadContent('job_desk')">
+            <i class="fas fa-briefcase"></i> Job Desk
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="toggleSubMenu('employeesSubMenu')">
+            <i class="fas fa-users"></i> Employees
+            <i class="fas fa-chevron-down arrow" id="employeesArrow"></i>
+        </div>
+        <div class="submenu" id="employeesSubMenu">
+            <div class="menu-item" onclick="loadContent('all_employee')">
+                <i class="fas fa-user-friends"></i> All Employee
+                <i class="fas fa-chevron-right arrow"></i>
             </div>
+            <div class="menu-item" onclick="loadContent('appointment')">
+                <i class="fas fa-calendar-check"></i> Appointment
+                <i class="fas fa-chevron-right arrow"></i>
+            </div>
+        </div>
+        <div class="menu-item" onclick="loadContent('payroll')">
+            <i class="fas fa-money-bill-wave"></i> Payroll
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="window.location.href='{% url 'post_list' %}'">
+            <i class="fas fa-newspaper"></i> Post
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <div class="menu-item" onclick="window.location.href='{% url 'settings_user' %}'">
+            <i class="fas fa-user-cog"></i> Settings
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">Logout</button>
         </form>
     </div>
-</div>
+    <div class="main-content">
+        <div class="settings-container">
+            <h2>Settings</h2>
+            <h3>User Settings</h3>
+            <p>Manage user roles, permissions, and account settings here.</p>
+            <p class="user-name">User: {{ first_name }} {{ last_name }}</p>
+            <form id="settingsForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="button-container">
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+            <div id="successMessage" style="display:none; color: green; margin-top: 20px;">
+                Save successfully!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('settingsForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Simulate form submission (you can replace this with actual form submission logic)
+            setTimeout(function() {
+                document.getElementById('successMessage').style.display = 'block';
+            }, 500); // Simulate a delay for form submission
+        });
+
+        function loadContent(section) {
+            fetch(`/api/${section}/`)
+                .then(response => response.text())
+                .then(html => {
+                    document.querySelector('.main-content').innerHTML = html;
+                })
+                .catch(error => console.log("Error loading content:", error));
+        }
+
+        function toggleSubMenu(subMenuId) {
+            const subMenu = document.getElementById(subMenuId);
+            const arrow = document.getElementById('employeesArrow');
+            const menuItem = arrow.closest('.menu-item');
+
+            if (subMenu.style.display === 'none' || !subMenu.style.display) {
+                subMenu.style.display = 'block';
+                menuItem.classList.add('open');
+            } else {
+                subMenu.style.display = 'none';
+                menuItem.classList.remove('open');
+            }
+        }
+
+        document.getElementById('employeesSubMenu').style.display = 'none';
+    </script>
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
