@@ -3,7 +3,7 @@ from . import views
 from django.urls import path
 from .views import RegisterView, register_form, LoginView, login_form, UserView, LogoutView, job_desk, employees, \
     all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post, \
-    job_title_register, job_title_create, add_job
+    job_title_register, job_title_create, add_job, employment_terms_register
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -28,4 +28,6 @@ urlpatterns = [
     path('post_list/like_post/<int:post_id>/', views.like_post, name='like_post'),
     path('post_list/add_comment/<int:post_id>/', views.add_comment, name='add_comment'),
     path('add_job/', add_job, name='add_job'),
+    path('add_salary/', views.add_salary, name='add_salary'),
+    path('register/employment_terms/', employment_terms_register, name='employment_terms_register'),
 ]

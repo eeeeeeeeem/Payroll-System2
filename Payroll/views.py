@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Payroll.forms import PostForm, UserSettingsForm
-from Payroll.models import User, Post, Comment, JobTitle
+from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms
 from Payroll.serializers import UserSerializer
 import jwt, datetime
 from django.core.mail import send_mail
@@ -68,25 +68,45 @@ def add_comment(request, post_id):
         'content': comment.content
     })
 
+
 def settings_user(request):
     try:
         user = get_user_from_token(request)
+        print(f"User retrieved: {user.email}")
     except AuthenticationFailed:
         return redirect('login_form')
+
+    # Get the latest employment terms
+    latest_employment_terms = EmploymentTerms.objects.filter(
+        employee=user
+    ).order_by('-salary_start_date').first()
 
     if request.method == 'POST':
         form = UserSettingsForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
-            form.save()
+            user = form.save()
+
+            # Don't update employment terms from settings page
+            messages.success(request, 'Profile updated successfully!')
             return redirect('settings_user')
+        else:
+            messages.error(request, 'Error updating profile. Please check the form.')
     else:
-        form = UserSettingsForm(instance=user)
+        # Initialize form with user data and latest employment terms
+        initial_data = {
+            'salary_start_date': latest_employment_terms.salary_start_date if latest_employment_terms else None,
+            'salary_end_date': latest_employment_terms.salary_end_date if latest_employment_terms else None,
+            'agreed_salary': latest_employment_terms.agreed_salary if latest_employment_terms else None,
+        }
+        form = UserSettingsForm(instance=user, initial=initial_data)
 
     return render(request, 'settings.html', {
         'form': form,
+        'user': user,
         'first_name': user.first_name,
         'last_name': user.last_name,
-        'profile_picture': user.profile_picture.url if user.profile_picture else None
+        'profile_picture': user.profile_picture.url if user.profile_picture else None,
+        'employment_terms': latest_employment_terms,
     })
 
 
@@ -255,12 +275,47 @@ def get_user_from_token(request):
 def Homepage(request):
     return render(request, 'homepage.html')
 
+
 def job_desk(request):
     user = get_user_from_token(request)
-    return render(request, 'job_desk.html', {
-        'first_name': user.first_name,
-        'last_name': user.last_name
-    })
+
+    try:
+        employment_terms = EmploymentTerms.objects.filter(employee=user).order_by('-salary_start_date')
+
+        context = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'employment_terms': employment_terms,
+            'user': user
+        }
+
+        if request.method == 'POST' and 'add_salary' in request.POST:
+            agreed_salary = request.POST.get('agreed_salary')
+            start_date = request.POST.get('salary_start_date')
+            end_date = request.POST.get('salary_end_date')
+
+            if not all([agreed_salary, start_date, end_date]):
+                messages.error(request, 'All fields are required')
+                return render(request, 'job_desk.html', context)
+
+            try:
+                EmploymentTerms.objects.create(
+                    employee=user,
+                    agreed_salary=agreed_salary,
+                    salary_start_date=start_date,
+                    salary_end_date=end_date
+                )
+                messages.success(request, 'Salary information added successfully!')
+                return redirect('job_desk')
+            except Exception as e:
+                messages.error(request, f'Error adding salary information: {str(e)}')
+                return render(request, 'job_desk.html', context)
+
+        return render(request, 'job_desk.html', context)
+
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return render(request, 'job_desk.html', {'error': str(e)})
 
 def employees(request):
     user = get_user_from_token(request)
@@ -304,7 +359,8 @@ def posting_user(request):
 def job_title_register(request):
     return render(request, 'job_title.html')
 
-
+def employment_terms_register(request):
+    return render(request, 'employment_terms.html')
 def job_title_create(request):
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -361,6 +417,33 @@ def all_employee(request):
         'last_name': user.last_name,
         'employees': employee_data
     })
+
+
+def add_salary(request):
+    try:
+        user = get_user_from_token(request)
+
+        if request.method == 'POST':
+            try:
+                # Add validation for dates
+                start_date = request.POST['salary_start_date']
+                end_date = request.POST['salary_end_date']
+
+                # Use the user from JWT token instead of request.user
+                EmploymentTerms.objects.create(
+                    employee=user,  # Changed from request.user to user
+                    agreed_salary=request.POST['agreed_salary'],
+                    salary_start_date=start_date,
+                    salary_end_date=end_date
+                )
+                return JsonResponse({'message': 'Salary added successfully'}, status=200)
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=400)
+
+    except AuthenticationFailed as e:
+        return JsonResponse({'error': str(e)}, status=401)
+
+    return redirect('dashboard')
 
 
 

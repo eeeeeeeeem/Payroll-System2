@@ -163,6 +163,16 @@
                 gap: 0.5rem;
             }
         }
+                a.btn {
+            text-decoration: none;
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            }
+        
+        a.btn:hover {
+            background-color: #5753c9;
+        }
     </style>
 </head>
 <body>
@@ -223,6 +233,9 @@
             </li>
         </ul>
     </div>
+        <form action="{% url 'employment_terms_register' %}" method="get">
+    <button type="submit" class="btn">Add your Employment Terms</button>
+        </form>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const toggleButtons = document.querySelectorAll('.btn-toggle');

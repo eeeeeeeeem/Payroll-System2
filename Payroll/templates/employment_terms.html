@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employment Terms</title>
+    <!-- Add Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --error-color: #ff4757;
+            --success-color: #2ed573;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-gradient);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: #5753c9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 98, 229, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(120%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Loading animation */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        input[type="date"]:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+        }
+
+        /* Style for date inputs */
+        input[type="date"] {
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Custom styling for date inputs */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
+        
+        button:disabled {
+            background-color: #cccccc !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    
+        button:disabled:hover {
+            background-color: #cccccc !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    
+        input:invalid {
+            border-color: var(--error-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Employment Terms</h1>
+
+        <form id="salaryForm" onsubmit="submitForm(event)">
+            <div class="form-group">
+                <label for="agreed_salary">Agreed Salary</label>
+                <input type="number" step="0.01" id="agreed_salary" name="agreed_salary" required min="0" placeholder="Enter agreed salary">
+            </div>
+            <div class="form-group">
+                <label for="salary_start_date">Salary Start Date</label>
+                <input type="date" id="salary_start_date" name="salary_start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="salary_end_date">Salary End Date</label>
+                <input type="date" id="salary_end_date" name="salary_end_date" required>
+            </div>
+            <button type="submit" id="submitButton">Add Employment Terms</button>
+        </form>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+    // Get all the form elements
+    const startDateInput = document.getElementById('salary_start_date');
+    const endDateInput = document.getElementById('salary_end_date');
+    const salaryInput = document.getElementById('agreed_salary');
+    const submitButton = document.getElementById('submitButton');
+
+    // Set minimum date as today for start date
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.min = today;
+
+    // Function to check if form is valid
+    function checkFormValidity() {
+        const isSalaryValid = salaryInput.value && parseFloat(salaryInput.value) > 0;
+        const isStartDateValid = startDateInput.value;
+        const isEndDateValid = endDateInput.value;
+        const areDatesValid = validateDates(false); // false means don't show toast
+
+        submitButton.disabled = !(isSalaryValid && isStartDateValid && isEndDateValid && areDatesValid);
+    }
+
+    // Handle salary input changes
+    salaryInput.addEventListener('input', checkFormValidity);
+
+    // Handle start date changes
+    startDateInput.addEventListener('change', function() {
+        // Clear end date when start date changes
+        endDateInput.value = '';
+        
+        // Set minimum date for end date input
+        endDateInput.min = this.value;
+        
+        // Enable end date input only when start date is selected
+        endDateInput.disabled = !this.value;
+
+        checkFormValidity();
+    });
+
+    // Handle end date changes
+    endDateInput.addEventListener('change', checkFormValidity);
+
+    // Initialize end date as disabled
+    endDateInput.disabled = true;
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        setTimeout(() => toast.classList.add('show'), 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    function validateDates(showToastMessage = true) {
+        if (!startDateInput.value || !endDateInput.value) return false;
+        
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        
+        if (startDate >= endDate) {
+            if (showToastMessage) {
+                showToast('End date must be after start date', 'error');
+            }
+            return false;
+        }
+        return true;
+    }
+
+    async function submitForm(event) {
+        event.preventDefault();
+        
+        if (!validateDates(true)) {
+            return;
+        }
+
+        const button = event.target.querySelector('button');
+        button.classList.add('loading');
+        button.textContent = 'Submitting...';
+
+        const formData = new FormData(document.getElementById('salaryForm'));
+
+        try {
+            const response = await fetch('{% url "add_salary" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showToast('Employment terms added successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '{% url "dashboard" %}';
+                }, 1500);
+            } else {
+                showToast(data.error || 'An error occurred', 'error');
+            }
+        } catch (error) {
+            showToast('An error occurred', 'error');
+            console.error('Error:', error);
+        } finally {
+            button.classList.remove('loading');
+            button.textContent = 'Add Employment Terms';
+        }
+    }
+
+    // Add form submit event listener
+    document.getElementById('salaryForm').addEventListener('submit', submitForm);
+
+    // Initialize date inputs on page load
+    window.addEventListener('load', function() {
+        // Set minimum date for start date (today)
+        startDateInput.min = today;
+        
+        // Disable end date initially
+        endDateInput.disabled = true;
+        
+        // If start date is already set (e.g., in edit mode)
+        if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            endDateInput.disabled = false;
+        }
+
+        // Initial check for form validity
+        checkFormValidity();
+    });
+</script>
+</body>
+</html>

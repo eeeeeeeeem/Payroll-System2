@@ -1,5 +1,9 @@
+from importlib.resources._common import _
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from rest_framework.exceptions import ValidationError
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -56,8 +60,19 @@ class EmploymentTerms(models.Model):
     salary_start_date = models.DateField()
     salary_end_date = models.DateField()
 
+    class Meta:
+        ordering = ['-salary_start_date']
+
     def __str__(self):
-        return f"{self.employee.first_name} {self.employee.last_name} - {self.agreed_salary}"
+        return f"{self.employee.email} - {self.agreed_salary}"
+
+    def clean(self):
+        if self.salary_start_date >= self.salary_end_date:
+            raise ValidationError(_('End date must be after start date'))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Post(models.Model):

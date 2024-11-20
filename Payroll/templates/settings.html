@@ -1,349 +1,481 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings</title>
-    {% load static %}
+    <title>Ultra Cool Settings</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
         :root {
-            --primary-color: #6e62e5;
-            --primary-light: #f0eeff;
-            --text-color: #333;
-            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --bg-color: #f0f0f0;
+            --text-color: #2c3e50;
+            --container-bg: rgba(255, 255, 255, 0.9);
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --button-bg: #9b87f5;
+            --button-hover: #8674e1;
+            --success-bg: #2ecc71;
+            --sidebar-bg: rgba(255, 255, 255, 0.95);
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
             color: var(--text-color);
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
-            display: flex;
+            transition: all 0.5s ease;
+            overflow-y: auto;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100vh;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .profile-picture-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .current-profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid var(--button-bg);
+            box-shadow: 0 4px 20px rgba(155, 135, 245, 0.2);
+        }
+
+        .profile-picture-input {
+            display: none;
+        }
+
+        .profile-picture-field-wrapper input[type="file"],
+        .profile-picture-field-wrapper p.file-upload{
+            display: none !important;
+        }
+
+        .clearable-file-input {
+            display: none !important;
+        }
+        .clear-picture-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+        }
+
+        .clear-picture-btn:hover {
+        background: #ff5252;
+        transform: translateY(-2px);
+        }
+
+        .profile-picture-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--button-bg);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-picture-label:hover {
+            transform: translateY(-2px);
+            background: var(--button-hover);
         }
 
         .sidebar {
-            width: 260px;
-            background-color: #fff;
-            height: 100vh;
-            padding: 20px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: calc(100vh - 4rem);
             overflow-y: auto;
-            position: relative;
-            z-index: 1000;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-            text-decoration: none;
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .nav-item {
             display: flex;
             align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--button-bg);
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .nav-item.active {
+            background: var(--button-bg);
+            color: white;
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 2rem;
+            margin: 0;
             position: relative;
-            overflow: hidden;
+            display: inline-block;
         }
 
-        .menu-item i:first-child {
-            font-size: 20px;
-            color: var(--primary-color);
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            z-index: 2;
-        }
-
-        .menu-item .arrow {
-            position: absolute;
-            right: 15px;
-            transition: transform 0.3s ease;
-            z-index: 2;
-        }
-
-        .menu-item::before {
+        h2::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--primary-light);
-            transition: all 0.3s ease;
-            z-index: 1;
-        }
-
-        .menu-item:hover::before, .menu-item.active::before {
+            bottom: -8px;
             left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--button-bg);
+            border-radius: 2px;
+            transition: width 0.3s ease;
         }
 
-        .menu-item:hover, .menu-item.active {
-            color: var(--primary-color);
-        }
-
-        .menu-item:hover .arrow, .menu-item.active .arrow {
-            transform: translateX(5px);
-        }
-
-        .menu-item.open .arrow {
-            transform: rotate(90deg);
-        }
-
-        .submenu {
-            display: none;
-            padding-left: 20px;
-            margin-top: 5px;
-        }
-
-        .submenu .menu-item {
-            font-size: 14px;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .settings-container {
-            max-width: 800px;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .settings-container:hover {
-            transform: scale(1.02);
-        }
-
-        .settings-container h2 {
-            color: var(--primary-color);
-            text-align: center;
-            font-size: 26px;
-            margin-bottom: 25px;
-        }
-
-        .settings-container h3 {
-            color: #333;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .settings-container p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .user-name {
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .settings-container input[type="text"],
-        .settings-container input[type="email"],
-        .settings-container input[type="date"],
-        .settings-container select {
+        h2:hover::after {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+        }
+
+        /* Style for Django form */
+        form p {
+            margin-bottom: 1rem;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        form input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid transparent;
             border-radius: 8px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: border 0.3s, box-shadow 0.3s;
+            background: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
         }
 
-        .settings-container input[type="text"]:focus,
-        .settings-container input[type="email"]:focus,
-        .settings-container input[type="date"]:focus,
-        .settings-container select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 8px rgba(110, 98, 229, 0.3);
+        form input:focus {
             outline: none;
+            border-color: var(--button-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(155, 135, 245, 0.2);
         }
 
-        .button-container {
-            text-align: right;
-            margin-top: 30px;
-        }
-
-        .button-container button {
-            background: linear-gradient(135deg, #6e62e5, #8e7ff0);
-            color: #fff;
+        button {
+            background: var(--button-bg);
+            color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(110, 98, 229, 0.2);
+            backdrop-filter: blur(5px);
         }
 
-        .button-container button:hover {
-            background: linear-gradient(135deg, #8e7ff0, #6e62e5);
+        button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(110, 98, 229, 0.3);
+            box-shadow: 0 4px 20px rgba(155, 135, 245, 0.4);
         }
 
-        .settings-container input[type="file"] {
-            margin-top: 10px;
+        .dark-mode {
+            --bg-color: #1a1f36;
+            --text-color: #ffffff;
+            --container-bg: rgba(41, 49, 79, 0.9);
+            --input-bg: rgba(41, 49, 79, 0.95);
+            --sidebar-bg: rgba(41, 49, 79, 0.95);
+            --button-bg: #7b5af1;
+            --button-hover: #6a49e3;
         }
 
-        .logout-form {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #9b87f5, #8674e1);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
-        .logout-button {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--button-bg);
+            color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
 
-        .logout-button:hover {
-            background-color: var(--primary-color);
-            color: #fff;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(110, 98, 229, 0.3);
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success-bg);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
         }
+
+        .success-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .alert-danger {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .alert-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            margin-top: 20px;
+        }
+
+        input[type="date"]:disabled {
+    background-color: #f5f5f5 !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+    border: 1px solid #ddd;
+}
+
+input[type="date"]:disabled:hover {
+    border-color: #ddd;
+    transform: none;
+    box-shadow: none;
+}
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
-            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
-            Payroll Management
-        </a>
-        <div class="menu-item" onclick="window.location.href='{% url 'dashboard' %}'">
-            <i class="fas fa-tachometer-alt"></i> Dashboard
-            <i class="fas fa-chevron-right arrow"></i>
-        </div>
-        <div class="menu-item" onclick="loadContent('job_desk')">
-            <i class="fas fa-briefcase"></i> Job Desk
-            <i class="fas fa-chevron-right arrow"></i>
-        </div>
-        <div class="menu-item" onclick="toggleSubMenu('employeesSubMenu')">
-            <i class="fas fa-users"></i> Employees
-            <i class="fas fa-chevron-down arrow" id="employeesArrow"></i>
-        </div>
-        <div class="submenu" id="employeesSubMenu">
-            <div class="menu-item" onclick="loadContent('all_employee')">
-                <i class="fas fa-user-friends"></i> All Employee
-                <i class="fas fa-chevron-right arrow"></i>
-            </div>
-            <div class="menu-item" onclick="loadContent('appointment')">
-                <i class="fas fa-calendar-check"></i> Appointment
-                <i class="fas fa-chevron-right arrow"></i>
-            </div>
-        </div>
-        <div class="menu-item" onclick="loadContent('payroll')">
-            <i class="fas fa-money-bill-wave"></i> Payroll
-            <i class="fas fa-chevron-right arrow"></i>
-        </div>
-        <div class="menu-item" onclick="window.location.href='{% url 'post_list' %}'">
-            <i class="fas fa-newspaper"></i> Post
-            <i class="fas fa-chevron-right arrow"></i>
-        </div>
-        <div class="menu-item" onclick="window.location.href='{% url 'settings_user' %}'">
-            <i class="fas fa-user-cog"></i> Settings
-            <i class="fas fa-chevron-right arrow"></i>
-        </div>
-        <form action="{% url 'logout' %}" method="post" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-button">Logout</button>
-        </form>
-    </div>
-    <div class="main-content">
-        <div class="settings-container">
+    <div class="animated-bg"></div>
+    <button id="darkModeToggle">🌓</button>
+
+    <div class="layout">
+        <div class="sidebar">
             <h2>Settings</h2>
-            <h3>User Settings</h3>
-            <p>Manage user roles, permissions, and account settings here.</p>
-            <p class="user-name">User: {{ first_name }} {{ last_name }}</p>
-            <form id="settingsForm" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="button-container">
-                    <button type="submit">Save Changes</button>
+            <nav>
+                <div class="nav-item active">
+                    <span>👤</span>
+                    Profile
                 </div>
-            </form>
-            <div id="successMessage" style="display:none; color: green; margin-top: 20px;">
-                Save successfully!
-            </div>
+                <div class="nav-item" onclick=window.location.href={% url 'dashboard' %}>
+                    <span>🏠</span>
+                    Homepage
+                </div>
+            </nav>
         </div>
+        
+        <div class="container">
+            <div class="content">
+            <h2>Profile Settings</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+           <form id="settingsForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+    <div class="form-group">
+        {% if field.name == 'profile_picture' %}
+            <div class="profile-picture-container">
+                <h3>Profile Picture</h3>
+                <div class="profile-picture-preview">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="current-profile-pic" id="profilePreview">
+                    {% else %}
+                        <img src="{% static 'default-profile.png' %}" alt="Default profile picture" class="current-profile-pic" id="profilePreview">
+                    {% endif %}
+                </div>
+                <div class="profile-picture-field-wrapper">
+                    <label for="{{ field.id_for_label }}" class="profile-picture-label">
+                        Change Profile Picture
+                    </label>
+                    <div style="display: none;">
+                        {{ field }}
+                    </div>
+                    {% if user.profile_picture %}
+                        <button type="button" class="clear-picture-btn" onclick="clearProfilePicture()">
+                            Clear Picture
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            {{ field.label_tag }}
+            {{ field }}
+        {% endif %}
+        {% if field.errors %}
+            <div class="alert alert-danger">
+                {{ field.errors }}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+
+        <div style="text-align: right; margin-top: 30px;">
+            <button type="submit" id="saveButton">Save Changes</button>
+        </div>
+    </form>
+    </div>
+        </div>
+</div>
+
+    <div id="successMessage" class="success-message">
+        Settings saved successfully! 🎉
     </div>
 
-    <script>
-        document.getElementById('settingsForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
+     <script>
+          function clearProfilePicture() {
+        const fileInput = document.querySelector('input[type="file"]');
+        fileInput.value = '';
 
-            // Simulate form submission (you can replace this with actual form submission logic)
-            setTimeout(function() {
-                document.getElementById('successMessage').style.display = 'block';
-            }, 500); // Simulate a delay for form submission
+        const clearCheckbox = document.querySelector('input[type="checkbox"]#profile_picture-clear_id');
+        if (clearCheckbox) {
+            clearCheckbox.checked = true;
+        }
+
+        const preview = document.getElementById('profilePreview');
+        preview.src = "{% static 'default-profile.png' %}";
+     }
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        const animatedBg = document.querySelector('.animated-bg');
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                animatedBg.style.background = 'linear-gradient(-45deg, #4a69bd, #6a89cc, #7b5af1, #6a49e3)';
+            } else {
+                animatedBg.style.background = 'linear-gradient(-45deg, #ff9a9e, #fad0c4, #9b87f5, #8674e1)';
+            }
         });
 
-        function loadContent(section) {
-            fetch(`/api/${section}/`)
-                .then(response => response.text())
-                .then(html => {
-                    document.querySelector('.main-content').innerHTML = html;
-                })
-                .catch(error => console.log("Error loading content:", error));
-        }
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
 
-        function toggleSubMenu(subMenuId) {
-            const subMenu = document.getElementById(subMenuId);
-            const arrow = document.getElementById('employeesArrow');
-            const menuItem = arrow.closest('.menu-item');
+            const saveButton = document.getElementById('saveButton');
+            const successMessage = document.getElementById('successMessage');
 
-            if (subMenu.style.display === 'none' || !subMenu.style.display) {
-                subMenu.style.display = 'block';
-                menuItem.classList.add('open');
-            } else {
-                subMenu.style.display = 'none';
-                menuItem.classList.remove('open');
+            saveButton.innerHTML = 'Saving...';
+            saveButton.disabled = true;
+
+            return true;
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePreview').src = e.target.result;
+            };
+            reader.readAsDataURL(this.files[0]);
+
+            const clearCheckbox = document.querySelector('input[type="checkbox"]#profile_picture-clear_id');
+            if (clearCheckbox) {
+                clearCheckbox.checked = false;
             }
         }
+    });
 
-        document.getElementById('employeesSubMenu').style.display = 'none';
+    window.addEventListener('load', function() {
+
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+
+    dateInputs.forEach(input => {
+        input.disabled = true;
+        input.style.backgroundColor = '#f5f5f5';
+        input.style.cursor = 'not-allowed';
+        input.style.opacity = '0.7';
+        });
+    });
     </script>
-    <!-- Font Awesome for icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>

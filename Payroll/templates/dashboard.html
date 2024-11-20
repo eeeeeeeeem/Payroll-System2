@@ -651,37 +651,6 @@
                     <div class="stat-bar-value">56 hour</div>
                 </div>
             </div>
-            <div class="employee-status">
-                <h3>Employee Status</h3>
-                <table class="employee-table">
-                    <thead>
-                        <tr>
-                            <th>Employee Name</th>
-                            <th>Employee ID</th>
-                            <th>Age</th>
-                            <th>Discipline</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>{{ user.name }}</td>
-                            <td>{{ user.department }}</td>
-                            <td>{{ user.age }}</td>
-                            <td>
-                                <div class="discipline-bar">
-                                    <div class="discipline-bar-inner" style="width: {{ user.discipline }}%;">
-                                        {{ user.discipline }}%
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="employee-status-tag {{ user.status|lower }}">{{ user.status }}</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
             <div class="employee-composition">
                 <h3>Employee Composition</h3>
                 <div class="pie-chart"></div>
@@ -758,6 +727,6 @@
     </script>
 
     <!-- Font Awesome for icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="" crossorigin="anonymous"></script>
 </body>
 </html>
