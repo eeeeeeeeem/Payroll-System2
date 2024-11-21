@@ -73,14 +73,6 @@ def add_comment(request, post_id):
 
 # List salary payments
 # List all salary payments
-def salary_payment_list(request):
-    salary_payments = SalaryPayment.objects.all()
-    # Add a calculated total_payment field to each object
-    for payment in salary_payments:
-        payment.total_payment = payment.base_salary + payment.bonus - payment.deduction
-    return render(request, 'payroll.html', {'salary_payments': salary_payments})
-
-# Create a new salary payment
 def salary_payment_create(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
@@ -98,11 +90,16 @@ def salary_payment_create(request):
             payment_date=payment_date
         )
         salary_payment.save()
-        return HttpResponseRedirect(reverse('salary_payment_list'))
+        return redirect('salary_payment_list')  # Redirect to the list view after saving
 
     users = User.objects.all()
     return render(request, 'salary_payment_form.html', {'users': users})
 
+def salary_payment_list(request):
+    salary_payments = SalaryPayment.objects.all()
+    for payment in salary_payments:
+        payment.total_payment = payment.base_salary + payment.bonus - payment.deduction
+    return render(request, 'payroll.html', {'salary_payments': salary_payments})
 
 # Delete a salary payment
 def salary_payment_delete(request, pk):
