@@ -1,5 +1,5 @@
 from django import forms
-from Payroll.models import User, Post, JobTitle, EmploymentTerms
+from Payroll.models import User, Post, JobTitle, EmploymentTerms, SalaryPayment
 
 
 class UserSettingsForm(forms.ModelForm):
@@ -155,3 +155,37 @@ class DepartmentHistoryForm(forms.ModelForm):
         model = DepartmentHistory
         fields = ['department', 'employee', 'start_date', 'end_date']
 
+class SalaryPaymentForm(forms.ModelForm):
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        label="Employee",
+        widget=forms.Select(attrs={'class': 'form-control', 'required': 'true'})
+    )
+    base_salary = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'required': 'true'}),
+        label="Base Salary"
+    )
+    bonus = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        initial=0.00,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label="Bonus"
+    )
+    deduction = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        initial=0.00,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label="Deduction"
+    )
+    payment_date = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'required': 'true'}),
+        label="Payment Date"
+    )
+
+    class Meta:
+        model = SalaryPayment
+        fields = ['user', 'base_salary', 'bonus', 'deduction', 'payment_date']

@@ -14,7 +14,7 @@ import jwt, datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
-
+from .forms import SalaryPaymentForm
 from Payroll.forms import PostForm, UserSettingsForm
 from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment
 from Payroll.serializers import UserSerializer
@@ -72,40 +72,28 @@ def add_comment(request, post_id):
     })
 
 # List salary payments
-# List all salary payments
+# Create Salary Payment
 def salary_payment_create(request):
     if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        base_salary = request.POST.get('base_salary')
-        bonus = request.POST.get('bonus')
-        deduction = request.POST.get('deduction')
-        payment_date = request.POST.get('payment_date')
+        form = SalaryPaymentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('salary_payment_list')
+    else:
+        form = SalaryPaymentForm()
 
-        user = get_object_or_404(User, id=user_id)
-        salary_payment = SalaryPayment(
-            user=user,
-            base_salary=base_salary,
-            bonus=bonus,
-            deduction=deduction,
-            payment_date=payment_date
-        )
-        salary_payment.save()
-        return redirect('salary_payment_list')  # Redirect to the list view after saving
+    return render(request, 'salary_payment_form.html', {'form': form})
 
-    users = User.objects.all()
-    return render(request, 'salary_payment_form.html', {'users': users})
-
+# List Salary Payments
 def salary_payment_list(request):
     salary_payments = SalaryPayment.objects.all()
-    for payment in salary_payments:
-        payment.total_payment = payment.base_salary + payment.bonus - payment.deduction
     return render(request, 'payroll.html', {'salary_payments': salary_payments})
 
-# Delete a salary payment
+# Delete Salary Payment
 def salary_payment_delete(request, pk):
     salary_payment = get_object_or_404(SalaryPayment, pk=pk)
     salary_payment.delete()
-    return HttpResponseRedirect(reverse('salary_payment_list'))
+    return redirect('salary_payment_list')
 
 def settings_user(request):
     try:

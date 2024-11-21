@@ -3,60 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll</title>
+    <title>Payroll Management</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        .header {
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: var(--primary-light);
             text-align: left;
         }
         .actions {
             display: flex;
             gap: 10px;
         }
+        .actions a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .actions a:hover {
+            color: #333;
+        }
     </style>
 </head>
 <body>
-    <h1>Payroll</h1>
-    <a href="{% url 'salary_payment_create' %}">Add Salary Payment</a>
-    <table>
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Base Salary</th>
-                <th>Bonus</th>
-                <th>Deduction</th>
-                <th>Total Payment</th>
-                <th>Payment Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for payment in salary_payments %}
+{% load static %}
+    <header class="header">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+        <div class="profile-info">
+            <img src="{{ profile_picture }}" alt="Profile Picture" class="profile-picture">
+            <span>{{ first_name }} {{ last_name }}</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Salary Payments</h1>
+        <a href="{% url 'salary_payment_create' %}" style="color: var(--primary-color); font-weight: 600; text-decoration: none; margin-bottom: 20px; display: inline-block;">Add Salary Payment</a>
+        <table>
+            <thead>
                 <tr>
-                    <td>{{ payment.user.first_name }} {{ payment.user.last_name }}</td>
-                    <td>{{ payment.base_salary }}</td>
-                    <td>{{ payment.bonus }}</td>
-                    <td>{{ payment.deduction }}</td>
-                    <td>{{ payment.total_payment }}</td>
-                    <td>{{ payment.payment_date }}</td>
-                    <td class="actions">
-                        <a href="{% url 'salary_payment_delete' payment.id %}">Delete</a>
-                    </td>
+                    <th>User</th>
+                    <th>Base Salary</th>
+                    <th>Bonus</th>
+                    <th>Deduction</th>
+                    <th>Total Payment</th>
+                    <th>Payment Date</th>
+                    <th>Actions</th>
                 </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="7">No salary payments found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+    {% for payment in salary_payments %}
+        <tr>
+            <td>{{ payment.user.first_name }} {{ payment.user.last_name }}</td>
+            <td>{{ payment.base_salary }}</td>
+            <td>{{ payment.bonus }}</td>
+            <td>{{ payment.deduction }}</td>
+            <td>{{ payment.total_payment }}</td>  
+            <td>{{ payment.payment_date }}</td>
+            <td class="actions">
+                <a href="{% url 'salary_payment_delete' payment.id %}">Delete</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="7">No salary payments found.</td>
+        </tr>
+    {% endfor %}
+</tbody>
+        </table>
+    </div>
 </body>
 </html>
