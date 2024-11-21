@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Department List</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-color: #6e62e5;
-            --primary-light: #f0eeff;
-            --text-color: #333;
-            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --green: #4caf50;
-            --red: #f44336;
-            --animation-speed: 0.3s;
+            --primary-color: #4e73df;
+            --primary-light: #dce7fc;
+            --text-color: #4f4f4f;
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: 0.3s ease;
         }
 
         * {
@@ -25,32 +27,74 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--bg-gradient);
-            display: flex;
+            background-color: var(--bg-color);
             color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+        }
+
+        .header {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            border: 2px solid white;
         }
 
         .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--box-shadow);
         }
 
         h1 {
             text-align: center;
+            font-size: 1.8rem;
             color: var(--primary-color);
             margin-bottom: 20px;
         }
 
         .button-container {
             display: flex;
-            justify-content: center;
-            gap: 10px;
+            justify-content: flex-end;
             margin-bottom: 20px;
         }
 
@@ -62,40 +106,70 @@
             padding: 10px 20px;
             background-color: var(--primary-color);
             color: white;
+            font-weight: 600;
             border: none;
-            border-radius: 5px;
+            border-radius: var(--radius);
             cursor: pointer;
-            transition: background-color var(--animation-speed);
+            transition: background-color var(--transition), transform var(--transition);
         }
 
         .button:hover {
             background-color: var(--primary-light);
             color: var(--primary-color);
+            transform: translateY(-3px);
         }
 
         ul {
-            list-style-type: none;
+            list-style: none;
             padding: 0;
         }
 
         li {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            background-color: #f2f2f2;
+            padding: 15px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--box-shadow);
+            transition: transform var(--transition);
+        }
+
+        li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        li span {
+            font-size: 1rem;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
+{% load static %}
+    <header class="header">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+    </header>
     <div class="container">
         <h1>Department List</h1>
         <div class="button-container">
-            <a href="{% url 'create_department_history' %}"><button class="button">Create Department History</button></a>
+            <a href="{% url 'create_department_history' %}">
+                <button class="button">Create Department History</button>
+            </a>
         </div>
         <ul>
             {% for department in departments %}
-                <li>{{ department.department_name }}</li>
+                <li>
+                    <span>{{ department.department_name }}</span>
+                </li>
+            {% empty %}
+                <li>No departments found.</li>
             {% endfor %}
         </ul>
     </div>

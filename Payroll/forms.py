@@ -86,7 +86,6 @@ class UserSettingsForm(forms.ModelForm):
             'employement_end',
             'profile_picture',
             'job_title',
-            'password'
         ]
 
 

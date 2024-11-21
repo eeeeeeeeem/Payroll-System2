@@ -5,16 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Department</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-color: #6e62e5;
-            --primary-light: #f0eeff;
-            --text-color: #333;
-            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --green: #4caf50;
-            --red: #f44336;
-            --animation-speed: 0.3s;
+            --primary-color: #4e73df;
+            --primary-light: #dce7fc;
+            --secondary-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --text-color: #4f4f4f;
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: 0.3s ease;
         }
 
         * {
@@ -25,24 +29,67 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--bg-gradient);
-            display: flex;
+            background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .header .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .profile-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
         }
 
         .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--box-shadow);
         }
 
         h1 {
             text-align: center;
+            font-size: 1.8rem;
             color: var(--primary-color);
             margin-bottom: 20px;
         }
@@ -50,38 +97,70 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
 
         label {
             font-weight: 500;
-            color: var(--primary-color);
+            font-size: 0.95rem;
+            color: var(--text-color);
         }
 
         input, select, textarea {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            outline: none;
+            transition: border-color var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(78, 115, 223, 0.3);
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px;
             background-color: var(--primary-color);
             color: white;
+            font-weight: 600;
+            font-size: 1rem;
             border: none;
-            border-radius: 5px;
+            border-radius: var(--radius);
             cursor: pointer;
-            transition: background-color var(--animation-speed);
+            transition: background-color var(--transition), transform var(--transition);
         }
 
         button:hover {
             background-color: var(--primary-light);
             color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            .header .logo {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
+{% load static %}
+    <header class="header">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+    </header>
+
     <div class="container">
         <h1>Create Department</h1>
         <form method="post">

@@ -79,10 +79,64 @@
             background-color: var(--primary-light);
             color: var(--primary-color);
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .profile-info span {
+            font-size: 14px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+{% load static %}
+    <header class="header">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+    </header>
+    <div class="container" style="margin-top: 80px;">
         <h1>Create Department History</h1>
         <form method="post">
             {% csrf_token %}

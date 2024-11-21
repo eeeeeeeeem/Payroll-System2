@@ -103,19 +103,7 @@
             transition: all var(--animation-speed) ease;
             z-index: 1;
         }
-
-        .menu-item:hover::before, .menu-item.active::before {
-            left: 0;
-        }
-
-        .menu-item:hover, .menu-item.active {
-            color: var(--primary-color);
-        }
-
-        .menu-item:hover .arrow, .menu-item.active .arrow {
-            transform: translateX(5px);
-        }
-
+        
         .menu-item.open .arrow {
             transform: rotate(90deg);
         }

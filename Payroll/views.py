@@ -18,6 +18,9 @@ from .forms import SalaryPaymentForm
 from Payroll.forms import PostForm, UserSettingsForm
 from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment
 from Payroll.serializers import UserSerializer
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import JobTitle
 
 
 def create_post(request):
@@ -86,8 +89,12 @@ def salary_payment_create(request):
 
 # List Salary Payments
 def salary_payment_list(request):
+    user = get_user_from_token(request)
     salary_payments = SalaryPayment.objects.all()
-    return render(request, 'payroll.html', {'salary_payments': salary_payments})
+    return render(request, 'payroll.html', {
+        'salary_payments': salary_payments,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None
+    })
 
 # Delete Salary Payment
 def salary_payment_delete(request, pk):
@@ -173,16 +180,20 @@ class RegisterView(APIView):
 
 
 def register_form(request):
+    # Retrieve job titles for display
     job_titles = JobTitle.objects.all().order_by('start_date')
 
     if request.method == 'POST':
         form = UserSettingsForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
+            # Handle the password separately from the form
+            password = request.POST.get('password')
+            if password:
+                user.set_password(password)
             user.save()
-            messages.success(request, 'Registration successful! Please login.')
-            return redirect('login_form')
+            messages.success(request, 'Registration successful! Please log in.')
+            return redirect('login_form')  # Replace 'login_form' with your actual login URL name
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -400,11 +411,6 @@ def job_title_create(request):
             return render(request, 'job_title.html', {'error': 'All fields are required'})
 
     return render(request, 'job_title.html')
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .models import JobTitle
-
 @login_required
 def add_job(request):
     if request.method == 'POST':
@@ -474,6 +480,7 @@ def add_salary(request):
 from Payroll.forms import DepartmentForm, DepartmentHistoryForm
 
 def create_department(request):
+    user = get_user_from_token(request)
     if request.method == 'POST':
         form = DepartmentForm(request.POST)
         if form.is_valid():
@@ -481,7 +488,12 @@ def create_department(request):
             return redirect('all_employee')
     else:
         form = DepartmentForm()
-    return render(request, 'create_department.html', {'form': form})
+    return render(request, 'create_department.html', {
+        'form': form,
+        'profile_picture': user.profile_picture.url if user.profile_picture else None,
+        'first_name': user.first_name,
+        'last_name': user.last_name
+    })
 
 def create_department_history(request):
     if request.method == 'POST':
