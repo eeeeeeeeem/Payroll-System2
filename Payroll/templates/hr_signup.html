@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Registration</title>
+</head>
+<body>
+
+    {% block content %}
+    <div class="container">
+        <h1>HR Registration</h1>
+        {% if form.errors %}
+        <div class="error-message">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p>{{ field.label }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form id="hrSignupForm" action="{% url 'hr_signup' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- Hidden field for role -->
+            <input type="hidden" name="role" value="HR">
+            
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" name="first_name" placeholder="John" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" name="last_name" placeholder="Doe" required>
+            </div>
+            <div class="form-group">
+                <label for="date_of_birth">Date of Birth</label>
+                <input type="date" name="date_of_birth" required>
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" name="address" placeholder="123 Main St" required>
+            </div>
+            <div class="form-group">
+                <label for="cityId">City</label>
+                <input type="text" name="cityId" placeholder="City ID" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" placeholder="hr@company.com" required>
+            </div>
+            <div class="form-group">
+                <label for="employement_start">Employment Start Date</label>
+                <input type="date" id="employement_start" name="employement_start" required>
+            </div>
+            <div class="form-group">
+                <label for="employement_end">Employment End Date</label>
+                <input type="date" id="employement_end" name="employement_end">
+            </div>
+            <div class="form-group">
+                <label for="job_title">Job Title</label>
+                <select name="job_title" id="job_title" required>
+                    <option value="">Select a job title</option>
+                    {% for job in job_titles %}
+                        <option value="{{ job.job_title_id }}">
+                            {{ job.title }} ({{ job.start_date|date:"M d, Y" }} - {{ job.end_date|date:"M d, Y" }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+                <label for="profile_picture">Profile Picture</label>
+                <input type="file" name="profile_picture" accept="image/*">
+            </div>
+            <button id="submitButton" type="submit">Sign Up as HR</button>
+        </form>
+    </div>
+
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            padding: 10px 0;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: #dc3545;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background-color: #f8d7da;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+
+    <script>
+    document.getElementById('hrSignupForm').addEventListener('submit', function(e) {
+        var startDate = document.getElementById('employement_start').value;
+        var endDate = document.getElementById('employement_end').value;
+
+        if (endDate && new Date(startDate) >= new Date(endDate)) {
+            e.preventDefault();
+            alert('Employment end date must be after start date');
+        }
+    });
+    </script>
+    {% endblock %}
+</body>
+</html>

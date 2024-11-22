@@ -313,6 +313,50 @@ input[type="date"]:disabled:hover {
     transform: none;
     box-shadow: none;
 }
+
+.delete-account-section {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #dc3545;
+    border-radius: 5px;
+}
+
+.warning-text {
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
     </style>
 </head>
 <body>
@@ -327,97 +371,155 @@ input[type="date"]:disabled:hover {
                     <span>👤</span>
                     Profile
                 </div>
-                <div class="nav-item" onclick=window.location.href={% url 'dashboard' %}>
+                <div class="nav-item" onclick="window.location.href='{% url 'dashboard' %}'">
                     <span>🏠</span>
                     Homepage
                 </div>
             </nav>
         </div>
-        
+
         <div class="container">
             <div class="content">
-            <h2>Profile Settings</h2>
+                <h2>Profile Settings</h2>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
-        {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
-
-           <form id="settingsForm" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        {% for field in form %}
-    <div class="form-group">
-        {% if field.name == 'profile_picture' %}
-            <div class="profile-picture-container">
-                <h3>Profile Picture</h3>
-                <div class="profile-picture-preview">
-                    {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="current-profile-pic" id="profilePreview">
-                    {% else %}
-                        <img src="{% static 'default-profile.png' %}" alt="Default profile picture" class="current-profile-pic" id="profilePreview">
-                    {% endif %}
-                </div>
-                <div class="profile-picture-field-wrapper">
-                    <label for="{{ field.id_for_label }}" class="profile-picture-label">
-                        Change Profile Picture
-                    </label>
-                    <div style="display: none;">
-                        {{ field }}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
                     </div>
-                    {% if user.profile_picture %}
-                        <button type="button" class="clear-picture-btn" onclick="clearProfilePicture()">
-                            Clear Picture
-                        </button>
-                    {% endif %}
+                {% endif %}
+
+                <form id="settingsForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        {% if user.is_hr %}
+                            {% if field.name != 'job_title' and field.name != 'agreed_salary' and field.name != 'salary_end_date' and field.name != 'salary_start_date' %}
+                                <div class="form-group">
+                                    {% if field.name == 'profile_picture' %}
+                                        <div class="profile-picture-container">
+                                            <h3>Profile Picture</h3>
+                                            <div class="profile-picture-preview">
+                                                {% if user.profile_picture %}
+                                                    <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="current-profile-pic" id="profilePreview">
+                                                {% else %}
+                                                    <img src="{% static 'default-profile.png' %}" alt="Default profile picture" class="current-profile-pic" id="profilePreview">
+                                                {% endif %}
+                                            </div>
+                                            <div class="profile-picture-field-wrapper">
+                                                <label for="{{ field.id_for_label }}" class="profile-picture-label">
+                                                    Change Profile Picture
+                                                </label>
+                                                <div style="display: none;">
+                                                    {{ field }}
+                                                </div>
+                                                {% if user.profile_picture %}
+                                                    <button type="button" class="clear-picture-btn" onclick="clearProfilePicture()">
+                                                        Clear Picture
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="form-group">
+                                {% if field.name == 'profile_picture' %}
+                                    <div class="profile-picture-container">
+                                        <h3>Profile Picture</h3>
+                                        <div class="profile-picture-preview">
+                                            {% if user.profile_picture %}
+                                                <img src="{{ user.profile_picture.url }}" alt="Current profile picture" class="current-profile-pic" id="profilePreview">
+                                            {% else %}
+                                                <img src="{% static 'default-profile.png' %}" alt="Default profile picture" class="current-profile-pic" id="profilePreview">
+                                            {% endif %}
+                                        </div>
+                                        <div class="profile-picture-field-wrapper">
+                                            <label for="{{ field.id_for_label }}" class="profile-picture-label">
+                                                Change Profile Picture
+                                            </label>
+                                            <div style="display: none;">
+                                                {{ field }}
+                                            </div>
+                                            {% if user.profile_picture %}
+                                                <button type="button" class="clear-picture-btn" onclick="clearProfilePicture()">
+                                                    Clear Picture
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button type="submit" id="saveButton">Save Changes</button>
+                    </div>
+                </form>
+
+                {% if not user.is_hr %}
+                <form action="{% url 'employment_terms_register' %}" method="get">
+                    <button type="submit" class="btn">Add your Employment Terms</button>
+                </form>
+                {% endif %}
+                
+                <br>
+                <div class="delete-account-section">
+                    <h3>Delete Account</h3>
+                    <div class="warning-text">
+                        Warning: This action cannot be undone. All your data will be permanently deleted.
+                    </div>
+                    <form action="{% url 'delete_account' %}" method="post" id="deleteAccountForm">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </form>
                 </div>
             </div>
-        {% else %}
-            {{ field.label_tag }}
-            {{ field }}
-        {% endif %}
-        {% if field.errors %}
-            <div class="alert alert-danger">
-                {{ field.errors }}
-            </div>
-        {% endif %}
-    </div>
-{% endfor %}
-
-        <div style="text-align: right; margin-top: 30px;">
-            <button type="submit" id="saveButton">Save Changes</button>
         </div>
-    </form>
     </div>
-        </div>
-</div>
 
     <div id="successMessage" class="success-message">
         Settings saved successfully! 🎉
     </div>
+    <script>
+        function clearProfilePicture() {
+            const fileInput = document.querySelector('input[type="file"]');
+            fileInput.value = '';
 
-     <script>
-          function clearProfilePicture() {
-        const fileInput = document.querySelector('input[type="file"]');
-        fileInput.value = '';
+            const clearCheckbox = document.querySelector('input[type="checkbox"]#profile_picture-clear_id');
+            if (clearCheckbox) {
+                clearCheckbox.checked = true;
+            }
 
-        const clearCheckbox = document.querySelector('input[type="checkbox"]#profile_picture-clear_id');
-        if (clearCheckbox) {
-            clearCheckbox.checked = true;
+            const preview = document.getElementById('profilePreview');
+            preview.src = "{% static 'default-profile.png' %}";
         }
 
-        const preview = document.getElementById('profilePreview');
-        preview.src = "{% static 'default-profile.png' %}";
-     }
         const darkModeToggle = document.getElementById('darkModeToggle');
         const body = document.body;
         const animatedBg = document.querySelector('.animated-bg');
@@ -432,7 +534,6 @@ input[type="date"]:disabled:hover {
         });
 
         document.getElementById('settingsForm').addEventListener('submit', function(e) {
-
             const saveButton = document.getElementById('saveButton');
             const successMessage = document.getElementById('successMessage');
 
@@ -450,31 +551,36 @@ input[type="date"]:disabled:hover {
         });
 
         document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('profilePreview').src = e.target.result;
-            };
-            reader.readAsDataURL(this.files[0]);
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profilePreview').src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
 
-            const clearCheckbox = document.querySelector('input[type="checkbox"]#profile_picture-clear_id');
-            if (clearCheckbox) {
-                clearCheckbox.checked = false;
+                const clearCheckbox = document.querySelector('input[type="checkbox"]#profile_picture-clear_id');
+                if (clearCheckbox) {
+                    clearCheckbox.checked = false;
+                }
             }
-        }
-    });
-
-    window.addEventListener('load', function() {
-
-    const dateInputs = document.querySelectorAll('input[type="date"]');
-
-    dateInputs.forEach(input => {
-        input.disabled = true;
-        input.style.backgroundColor = '#f5f5f5';
-        input.style.cursor = 'not-allowed';
-        input.style.opacity = '0.7';
         });
-    });
+
+        window.addEventListener('load', function() {
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+
+            dateInputs.forEach(input => {
+                input.disabled = true;
+                input.style.backgroundColor = '#f5f5f5';
+                input.style.cursor = 'not-allowed';
+                input.style.opacity = '0.7';
+            });
+        });
+
+        document.getElementById('deleteAccountForm').addEventListener('submit', function(event) {
+        if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            event.preventDefault();
+            }
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>

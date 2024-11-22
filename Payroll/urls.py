@@ -3,7 +3,8 @@ from . import views
 from django.urls import path
 from .views import RegisterView, register_form, LoginView, login_form, UserView, LogoutView, job_desk, employees, \
     all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post, \
-    job_title_register, job_title_create, add_job, employment_terms_register , create_department, create_department_history
+    job_title_register, job_title_create, add_job, employment_terms_register, create_department, \
+    create_department_history, delete_account
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -13,6 +14,8 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('login/form/', login_form, name='login_form'),
     path('dashboard/', UserView.as_view(), name='dashboard'),
+    path('punch-in/', UserView.as_view(), name='punch_in'),
+    path('punch-out/', UserView.as_view(), name='punch_out'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('job_desk/', job_desk, name='job_desk'),
     path('employees/', employees, name='employees'),
@@ -37,6 +40,9 @@ urlpatterns = [
 
     path('create_department/', create_department, name='create_department'),
     path('create_department_history/', create_department_history, name='create_department_history'),
-path('departments/', views.department_list, name='department_list'),
+    path('departments/', views.department_list, name='department_list'),
     path('department_histories/', views.department_history_list, name='department_history_list'),
+    path('delete-account/', views.delete_account, name='delete_account'),
+    path('signup/hr', views.hr_signup, name='hr_signup'),
+
 ]

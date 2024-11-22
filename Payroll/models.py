@@ -6,13 +6,14 @@ from rest_framework.exceptions import ValidationError
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, role='EMPLOYEE', **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, role=role, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
@@ -30,10 +31,19 @@ class JobTitle(models.Model):
     def __str__(self):
         return self.title
 
+
 class User(AbstractBaseUser):
+    # Define role choices
+    ROLE_CHOICES = (
+        ('HR', 'Human Resources'),
+        ('EMPLOYEE', 'Employee'),
+    )
+
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
@@ -43,12 +53,29 @@ class User(AbstractBaseUser):
     last_login = models.DateTimeField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     job_title = models.ForeignKey(JobTitle, on_delete=models.CASCADE, related_name='employees', default=1)
+    punch_out_time = models.DateTimeField(null=True, blank=True)
+
+    # Add role field
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='EMPLOYEE'
+    )
 
     objects = UserManager()
 
-
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'cityId', 'employement_start', 'job_title', 'employement_end']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'date_of_birth', 'gender', 'address', 'cityId', 'employement_start',
+                       'job_title', 'employement_end']
+
+    def is_hr(self):
+        return self.role == 'HR'
+
+    def is_employee(self):
+        return self.role == 'EMPLOYEE'
+
+    def has_hr_permission(self):
+        return self.is_hr()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -125,3 +152,23 @@ class DepartmentHistory(models.Model):
 
     def __str__(self):
         return f"{self.department.department_name} - {self.employee.first_name} {self.employee.last_name}"
+
+
+class TimeRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='time_records')
+    date = models.DateField(auto_now_add=True)
+    punch_in = models.DateTimeField(auto_now_add=True)
+    punch_out = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-date', '-punch_in']
+
+    @property
+    def hours_worked(self):
+        if self.punch_out:
+            duration = self.punch_out - self.punch_in
+            return duration.total_seconds() / 3600
+        return 0
+
+    def __str__(self):
+        return f"{self.user.first_name} - {self.date}"

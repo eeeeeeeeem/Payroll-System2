@@ -50,8 +50,8 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
 )
 
@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'Payroll.middleware.RoleMiddleware',
 ]
 
 ROOT_URLCONF = 'Payroll_System.urls'
@@ -136,7 +137,7 @@ SOCIAL_AUTH_PIPELINE = (
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
@@ -175,5 +176,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_URL = '/logout/'
 LOGOUT_REDIRECT_URL = '/login_form/'
+LOGIN_URL = '/login_form/'
 
 AUTH_USER_MODEL = 'Payroll.User'

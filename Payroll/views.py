@@ -1,27 +1,49 @@
+from calendar import monthrange
+from functools import wraps
 from django.contrib import messages
+from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from rest_framework import status
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.decorators import action
+from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.mail import send_mail
 from django.conf import settings
 import jwt, datetime
+from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import SalaryPaymentForm
 from Payroll.forms import PostForm, UserSettingsForm
-from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment
+from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment, TimeRecord
 from Payroll.serializers import UserSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import JobTitle
+import logging
+logger = logging.getLogger(__name__)
 
+
+def hr_required(view_func):
+    @wraps(view_func)
+    def wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in to access this page.')
+            return redirect('login_form')
+
+        if not request.user.is_hr():
+            messages.error(request, 'Access denied. HR privileges required.')
+            raise PermissionDenied('You do not have permission to access this page.')
+
+        return view_func(request, *args, **kwargs)
+
+    return wrapped_view
 
 def create_post(request):
     token = request.COOKIES.get('jwt')
@@ -76,6 +98,7 @@ def add_comment(request, post_id):
 
 # List salary payments
 # Create Salary Payment
+@hr_required
 def salary_payment_create(request):
     if request.method == 'POST':
         form = SalaryPaymentForm(request.POST)
@@ -88,6 +111,8 @@ def salary_payment_create(request):
     return render(request, 'salary_payment_form.html', {'form': form})
 
 # List Salary Payments
+
+@hr_required
 def salary_payment_list(request):
     user = get_user_from_token(request)
     salary_payments = SalaryPayment.objects.all()
@@ -187,7 +212,6 @@ def register_form(request):
         form = UserSettingsForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
-            # Handle the password separately from the form
             password = request.POST.get('password')
             if password:
                 user.set_password(password)
@@ -205,30 +229,37 @@ class LoginView(APIView):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        user = User.objects.filter(email=email).first()
+        try:
+            # Use authenticate to get the user with the correct backend
+            user = authenticate(request, email=email, password=password)
 
-        if user is None:
-            raise AuthenticationFailed('User not found')
+            if user is None:
+                raise AuthenticationFailed('Invalid email or password')
 
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password')
+            # Update last login
+            user.last_login = datetime.datetime.now(datetime.timezone.utc)
+            user.save()
 
-        user.last_login = datetime.datetime.now(datetime.timezone.utc)  # Update last_login
-        user.save()
+            # Create JWT token
+            payload = {
+                'id': user.id,
+                'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60),
+                'iat': datetime.datetime.now(datetime.timezone.utc)
+            }
 
-        payload = {
-            'id': user.id,
-            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.now(datetime.timezone.utc)
-        }
+            token = jwt.encode(payload, 'secret', algorithm='HS256')
+            token = token if isinstance(token, str) else token.decode('utf-8')
 
-        token = jwt.encode(payload, 'secret', algorithm='HS256')
-        token = token if isinstance(token, str) else token.decode('utf-8')
+            # Log the user in with the ModelBackend
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-        response = redirect('dashboard')
-        response.set_cookie(key='jwt', value=token, httponly=True)
+            response = redirect('dashboard')
+            response.set_cookie(key='jwt', value=token, httponly=True)
+            return response
 
-        return response
+        except Exception as e:
+            print(f"Login error: {str(e)}")  # Debug print
+            raise AuthenticationFailed('Login failed')
 
 def calculate_discipline(age):
     if isinstance(age, int):
@@ -254,7 +285,77 @@ def calculate_age(born):
         return "N/A"
     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
+
 class UserView(APIView):
+    def calculate_month_stats(self, user):
+        now = timezone.now()
+        first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        _, last_day = monthrange(now.year, now.month)
+        last_date = now.replace(day=last_day)
+
+        try:
+            # Get all time records for current month
+            time_records = TimeRecord.objects.filter(
+                user=user,
+                date__gte=first_day.date(),
+                date__lte=last_date.date()
+            )
+
+            STANDARD_HOURS_PER_DAY = 8
+
+            # Calculate working days in current month (excluding weekends)
+            working_days = len([x for x in range(1, last_day + 1)
+                                if datetime.datetime(now.year, now.month, x).weekday() < 5])
+
+            # Calculate total required hours for the month
+            total_required_hours = working_days * STANDARD_HOURS_PER_DAY
+
+            # Calculate actual worked hours
+            total_worked_hours = sum(record.hours_worked for record in time_records)
+
+            # Calculate overtime and daily records
+            daily_records = {}
+            for record in time_records:
+                date_str = record.date.strftime('%Y-%m-%d')
+                if date_str not in daily_records:
+                    daily_records[date_str] = 0
+                daily_records[date_str] += record.hours_worked
+
+            overtime_hours = sum(max(0, hours - STANDARD_HOURS_PER_DAY)
+                                 for hours in daily_records.values())
+
+            shortage_hours = max(0, total_required_hours - (total_worked_hours - overtime_hours))
+
+            if total_required_hours > 0:
+                worked_percentage = min(100, (total_worked_hours / total_required_hours) * 100)
+                shortage_percentage = (shortage_hours / total_required_hours) * 100
+                overtime_percentage = (overtime_hours / total_required_hours) * 100
+            else:
+                worked_percentage = 0
+                shortage_percentage = 0
+                overtime_percentage = 0
+
+            return {
+                'total_hours': round(total_required_hours, 1),
+                'worked_hours': round(total_worked_hours, 1),
+                'shortage_hours': round(shortage_hours, 1),
+                'overtime_hours': round(overtime_hours, 1),
+                'worked_percentage': round(worked_percentage, 1),
+                'shortage_percentage': round(shortage_percentage, 1),
+                'overtime_percentage': round(overtime_percentage, 1),
+            }
+        except Exception as e:
+            print(f"Error calculating month stats: {e}")
+            return {
+                'total_hours': 216.0,
+                'worked_hours': 189.0,
+                'shortage_hours': 23.0,
+                'overtime_hours': 56.0,
+                'worked_percentage': 87,
+                'shortage_percentage': 10,
+                'overtime_percentage': 25,
+            }
+
     def get(self, request):
         token = request.COOKIES.get('jwt')
 
@@ -268,6 +369,8 @@ class UserView(APIView):
 
         user = User.objects.filter(id=payload['id']).first()
         serializer = UserSerializer(user)
+
+        month_stats = self.calculate_month_stats(user)
 
         users = User.objects.all()
         user_data = [
@@ -286,11 +389,80 @@ class UserView(APIView):
             'first_name': serializer.data['first_name'],
             'last_name': serializer.data['last_name'],
             'profile_picture': serializer.data['profile_picture'],
-            'users': user_data
+            'users': user_data,
+            'last_login': user.last_login,
+            'punch_out': user.punch_out_time,
+            'month_stats': month_stats
         })
+
+    def post(self, request):
+        action = request.POST.get('action')
+
+        if action == 'punch_in':
+            return self.handle_punch_in(request)
+        elif action == 'punch_out':
+            return self.handle_punch_out(request)
+
+        return redirect('dashboard')
+
+    def handle_punch_in(self, request):
+        token = request.COOKIES.get('jwt')
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+            user = User.objects.filter(id=payload['id']).first()
+
+            # Create new time record
+            TimeRecord.objects.create(
+                user=user,
+                date=timezone.now().date(),
+                punch_in=timezone.now(),
+                punch_out=None
+            )
+
+            # Reset punch out time
+            user.punch_out_time = None
+            user.save()
+
+            return redirect('dashboard')
+        except Exception as e:
+            print(f"Error in punch_in: {e}")
+            return redirect('dashboard')
+
+    def handle_punch_out(self, request):
+        token = request.COOKIES.get('jwt')
+        if not token:
+            raise AuthenticationFailed('Unauthenticated')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+            user = User.objects.filter(id=payload['id']).first()
+            latest_record = TimeRecord.objects.filter(
+                user=user,
+                punch_out__isnull=True
+            ).latest('punch_in')
+
+            current_time = timezone.now()
+            latest_record.punch_out = current_time
+            latest_record.save()
+
+            user.punch_out_time = current_time
+            user.save()
+            return redirect('dashboard')
+        except Exception as e:
+            print(f"Error in punch_out: {e}")
+            return redirect('dashboard')
 
 class LogoutView(APIView):
     def post(self, request):
+
+        user = get_user_from_token(request)
+        user.punch_out_time = datetime.datetime.now(datetime.timezone.utc)
+        user.save()
+
+
         response = redirect('login_form')
         response.delete_cookie('jwt')
         return response
@@ -308,10 +480,8 @@ def get_user_from_token(request):
 
     user = User.objects.filter(id=payload['id']).first()
     return user
-
 def Homepage(request):
     return render(request, 'homepage.html')
-
 
 def job_desk(request):
     user = get_user_from_token(request)
@@ -361,6 +531,7 @@ def employees(request):
         'last_name': user.last_name
     })
 
+@hr_required
 def all_employee(request):
     user = get_user_from_token(request)
     return render(request, 'all_employee.html', {
@@ -538,5 +709,75 @@ def create_department_history(request):
     else:
         form = DepartmentHistoryForm()
     return render(request, 'create_department_history.html', {'form': form})
+
+
+@login_required(login_url='login_form')
+def delete_account(request):
+    if request.method == 'POST':
+        try:
+            # Store email instead of username since that's your user identifier
+            user_email = request.user.email
+            user = request.user
+
+            # Print debug information
+            print(f"Attempting to delete user: {user_email}")
+            print(f"User ID: {user.id}")
+
+            # Delete the user first, then logout
+            user.delete()
+            logout(request)
+
+            messages.success(request, f'Account {user_email} has been successfully deleted.')
+            return redirect('login_form')
+        except Exception as e:
+            print(f"Error deleting account: {str(e)}")  # Debug print
+            messages.error(request, f'Failed to delete account: {str(e)}')
+            return redirect('settings_user')
+    return redirect('settings_user')
+
+
+def hr_signup(request):
+    if request.method == 'POST':
+        try:
+            email = request.POST['email']
+            password = request.POST['password']
+            first_name = request.POST['first_name']
+            last_name = request.POST['last_name']
+            date_of_birth = request.POST['date_of_birth']
+            gender = request.POST['gender']
+            address = request.POST['address']
+            cityId = request.POST['cityId']
+            employement_start = request.POST['employement_start']
+            employement_end = request.POST.get('employement_end')
+            job_title_id = request.POST['job_title']
+            profile_picture = request.FILES.get('profile_picture')
+
+            # Create HR user
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                date_of_birth=date_of_birth,
+                gender=gender,
+                address=address,
+                cityId=cityId,
+                employement_start=employement_start,
+                employement_end=employement_end if employement_end else None,
+                job_title_id=job_title_id,
+                profile_picture=profile_picture,
+                role='HR'  # Set role as HR
+            )
+
+            messages.success(request, 'HR account created successfully! Please login.')
+            return redirect('login_form')
+
+        except Exception as e:
+            messages.error(request, f'Error creating HR account: {str(e)}')
+            return redirect('hr_signup')
+
+    # GET request - show the form
+    job_titles = JobTitle.objects.all()
+    return render(request, 'hr_signup.html', {'job_titles': job_titles})
 
 

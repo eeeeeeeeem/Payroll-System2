@@ -322,6 +322,22 @@
             transition: width 1s ease-in-out;
         }
 
+        .stat-bar:nth-child(1) .stat-bar-progress-inner {
+            background-color: #2196F3;
+        }
+
+        .stat-bar:nth-child(2) .stat-bar-progress-inner {
+            background-color: #f44336;
+        }
+
+        .stat-bar:nth-child(3) .stat-bar-progress-inner {
+            background-color: #4CAF50;
+        }
+
+        .stat-bar:nth-child(4) .stat-bar-progress-inner {
+            background-color: #FF9800;
+        }
+
         .employee-status {
             background-color: white;
             padding: 25px;
@@ -526,6 +542,108 @@
                 margin-top: 15px;
             }
         }
+
+    .time-tracking-section {
+        padding: 15px;
+        margin: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        margin-top: auto;
+        margin-bottom: 10px;
+    }
+
+    .time-display {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #fff;
+    }
+
+    .clock {
+        display: block;
+        font-size: 1.1em;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+
+    .date {
+        display: block;
+        font-size: 0.8em;
+        opacity: 0.8;
+    }
+
+    /* Added work status styles */
+    .work-status {
+        text-align: center;
+        padding: 5px;
+        margin: 8px 0;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .status-dot {
+        font-size: 0.8em;
+        color: #ff4444;
+    }
+
+    .work-status.active .status-dot {
+        color: #00C851;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    .punch-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .punch-actions form {
+        margin: 0;
+    }
+
+    .punch-button {
+        width: 100%;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        background: #4CAF50;
+        color: white;
+        cursor: pointer;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: opacity 0.2s;
+    }
+
+    .punch-button:last-of-type {
+        background: #f44336;
+    }
+
+    .punch-button:hover:not([disabled]) {
+        opacity: 0.9;
+    }
+
+    .punch-button[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .punch-button i {
+        font-size: 0.9em;
+    }
     </style>
 </head>
 <body> 
@@ -543,6 +661,8 @@
             <i class="fas fa-briefcase"></i> Job Desk
             <i class="fas fa-chevron-right arrow"></i>
         </div>
+
+        {% if user.role == 'HR' %}
         <div class="menu-item" onclick="toggleSubMenu('employeesSubMenu')">
             <i class="fas fa-users"></i> Employees
             <i class="fas fa-chevron-down arrow" id="employeesArrow"></i>
@@ -552,15 +672,13 @@
                 <i class="fas fa-user-friends"></i> All Employee
                 <i class="fas fa-chevron-right arrow"></i>
             </div>
-            <div class="menu-item" onclick="loadContent('appointment')">
-                <i class="fas fa-calendar-check"></i> Appointment
-                <i class="fas fa-chevron-right arrow"></i>
-            </div>
         </div>
         <div class="menu-item" onclick="window.location.href='{% url 'salary_payment_list' %}'">
             <i class="fas fa-newspaper"></i> Payroll
             <i class="fas fa-chevron-right arrow"></i>
         </div>
+        {% endif %}
+
         <div class="menu-item" onclick="window.location.href='{% url 'post_list' %}'">
             <i class="fas fa-newspaper"></i> Post
             <i class="fas fa-chevron-right arrow"></i>
@@ -569,92 +687,164 @@
             <i class="fas fa-user-cog"></i> Settings
             <i class="fas fa-chevron-right arrow"></i>
         </div>
+
+       <div class="time-tracking-section">
+        <div class="time-display">
+            <span class="clock" id="live-clock">13:17:03</span>
+            <span class="date" id="current-date">Nov 22, 2024</span>
+        </div>
+       
+        <div class="work-status {% if not user.punch_out_time %}active{% endif %}">
+            <i class="fas fa-circle status-dot"></i>
+            <span id="status-text" style="text-decoration-color: black">
+                {% if not user.punch_out_time %}
+                    Currently Working
+                {% else %}
+                    Not Working
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="punch-actions">
+            <form method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="punch_in">
+                <button type="submit" class="punch-button" {% if not user.punch_out_time %}disabled{% endif %}>
+                    <i class="fas fa-sign-in-alt"></i> Punch In
+                </button>
+            </form>
+            <form method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="punch_out">
+                <button type="submit" class="punch-button" {% if user.punch_out_time %}disabled{% endif %}>
+                    <i class="fas fa-sign-out-alt"></i> Punch Out
+                </button>
+            </form>
+        </div>
+    </div>
+
         <form action="{% url 'logout' %}" method="post" class="logout-form">
             {% csrf_token %}
             <button type="submit" class="logout-button">Logout</button>
         </form>
     </div>
-    <div class="main-content" id="contentArea">
-        <div id="dashboard" class="content">
-            <div class="header">
-                <h2 class="greeting">Good to see you, {{ first_name }} {{ last_name }}👋</h2>
-                <div class="profile-info">
+   <div class="main-content" id="contentArea">
+    <div id="dashboard" class="content">
+        <div class="header">
+            {% now "H" as current_hour %}
+            <h2 class="greeting">
+                {% if current_hour|add:"0" < 12 %}
+                    Good morning,
+                {% elif current_hour|add:"0" < 17 %}
+                    Good afternoon,
+                {% else %}
+                    Good evening,
+                {% endif %}
+                {% if user.is_hr %}
+                    HR {{ first_name }} {{ last_name }} 👋
+                {% else %}
+                    {{ first_name }} {{ last_name }} 👋
+                {% endif %}
+            </h2>
+            <div class="profile-info">
+                {% if profile_picture %}
                     <img src="{{ profile_picture }}" alt="Profile Picture" class="profile-picture">
-                    <div class="time-info">
-                        <span><i class="fas fa-clock"></i> 7:14 AM Punch in</span>
-                        <span><i class="fas fa-clock"></i> 05:00 PM Punch out</span>
-                    </div>
+                {% else %}
+                    <img src="{% static 'default-profile.png' %}" alt="Default Profile Picture" class="profile-picture">
+                {% endif %}
+                <div class="time-info">
+                    {% if last_login %}
+                        <span><i class="fas fa-clock"></i> Punch in: {{ last_login|date:"h:i A" }}</span>
+                    {% else %}
+                        <span><i class="fas fa-clock"></i> Not punched in yet</span>
+                    {% endif %}
+
+                    {% if punch_out %}
+                        <span><i class="fas fa-clock"></i> Punch out: {{ punch_out|date:"h:i A" }}</span>
+                    {% else %}
+                        <span><i class="fas fa-clock"></i> Not punched out yet</span>
+                    {% endif %}
+
+                    <span class="current-time">
+                        <i class="fas fa-calendar"></i> {% now "F j, Y" %}
+                        <br>
+                        <i class="fas fa-clock"></i> <span id="currentTime">{% now "h:i:s A" %}</span>
+                    </span>
                 </div>
             </div>
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-title">Total Employees</div>
-                    <div class="stat-value">856</div>
-                    <div class="stat-change positive">+10.0%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Job View</div>
-                    <div class="stat-value">3,342</div>
-                    <div class="stat-change positive">+22.0%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Job Applied</div>
-                    <div class="stat-value">77</div>
-                    <div class="stat-change positive">+12.0%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Resigned Employees</div>
-                    <div class="stat-value">17</div>
-                    <div class="stat-change negative">-7.0%</div>
-                </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-title">Total Employees</div>
+                <div class="stat-value">856</div>
+                <div class="stat-change positive">+10.0%</div>
             </div>
-            <div class="month-stats">
-                <h3>This month</h3>
-                <div class="stat-bar">
-                    <div class="stat-bar-label">Total</div>
-                    <div class="stat-bar-progress">
-                        <div class="stat-bar-progress-inner" style="width: 100%;"></div>
-                    </div>
-                    <div class="stat-bar-value">216 hour</div>
-                </div>
-                <div class="stat-bar">
-                    <div class="stat-bar-label">Shortage time</div>
-                    <div class="stat-bar-progress">
-                        <div class="stat-bar-progress-inner" style="width: 10%;"></div>
-                    </div>
-                    <div class="stat-bar-value">23 hour</div>
-                </div>
-                <div class="stat-bar">
-                    <div class="stat-bar-label">Worked time</div>
-                    <div class="stat-bar-progress">
-                        <div class="stat-bar-progress-inner" style="width: 87%;"></div>
-                    </div>
-                    <div class="stat-bar-value">189 hour</div>
-                </div>
-                <div class="stat-bar">
-                    <div class="stat-bar-label">Over time</div>
-                    <div class="stat-bar-progress">
-                        <div class="stat-bar-progress-inner" style="width: 25%;"></div>
-                    </div>
-                    <div class="stat-bar-value">56 hour</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-title">Job View</div>
+                <div class="stat-value">3,342</div>
+                <div class="stat-change positive">+22.0%</div>
             </div>
-            <div class="employee-composition">
-                <h3>Employee Composition</h3>
-                <div class="pie-chart"></div>
-                <div class="pie-legend">
-                    <div class="pie-legend-item">
-                        <div class="pie-legend-color" style="background-color: var(--primary-color);"></div>
-                        <div class="pie-legend-label">Male 65%</div>
-                    </div>
-                    <div class="pie-legend-item">
-                        <div class="pie-legend-color" style="background-color: #ffc107;"></div>
-                        <div class="pie-legend-label">Female 35%</div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-title">Job Applied</div>
+                <div class="stat-value">77</div>
+                <div class="stat-change positive">+12.0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Resigned Employees</div>
+                <div class="stat-value">17</div>
+                <div class="stat-change negative">-7.0%</div>
+            </div>
+        </div>
+
+        <div class="month-stats">
+    <h3>This month</h3>
+    <div class="stat-bar">
+        <div class="stat-bar-label">Total</div>
+        <div class="stat-bar-progress">
+            <div class="stat-bar-progress-inner" style="width: 100%;"></div>
+        </div>
+        <div class="stat-bar-value">{{ month_stats.total_hours }} hours</div>
+    </div>
+    <div class="stat-bar">
+        <div class="stat-bar-label">Shortage time</div>
+        <div class="stat-bar-progress">
+            <div class="stat-bar-progress-inner" style="width: {{ month_stats.shortage_percentage }}%;"></div>
+        </div>
+        <div class="stat-bar-value">{{ month_stats.shortage_hours }} hours</div>
+    </div>
+    <div class="stat-bar">
+        <div class="stat-bar-label">Worked time</div>
+        <div class="stat-bar-progress">
+            <div class="stat-bar-progress-inner" style="width: {{ month_stats.worked_percentage }}%;"></div>
+        </div>
+        <div class="stat-bar-value">{{ month_stats.worked_hours }} hours</div>
+    </div>
+    <div class="stat-bar">
+        <div class="stat-bar-label">Over time</div>
+        <div class="stat-bar-progress">
+            <div class="stat-bar-progress-inner" style="width: {{ month_stats.overtime_percentage }}%;"></div>
+        </div>
+        <div class="stat-bar-value">{{ month_stats.overtime_hours }} hours</div>
+    </div>
+</div>
+
+        <div class="employee-composition">
+            <h3>Employee Composition</h3>
+            <div class="pie-chart"></div>
+            <div class="pie-legend">
+                <div class="pie-legend-item">
+                    <div class="pie-legend-color" style="background-color: var(--primary-color);"></div>
+                    <div class="pie-legend-label">Male 65%</div>
+                </div>
+                <div class="pie-legend-item">
+                    <div class="pie-legend-color" style="background-color: #ffc107;"></div>
+                    <div class="pie-legend-label">Female 35%</div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <div class="background-animation">
         <span style="left: 10%; top: 10%;"></span>
@@ -712,9 +902,47 @@
             span.style.animationDuration = `${Math.random() * 3 + 2}s`;
             span.style.animationDelay = `${Math.random() * 2}s`;
         });
+
+        function updateTime() {
+            const timeElement = document.getElementById('currentTime');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            timeElement.textContent = timeString;
+            }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+
+        function updateClock() {
+        const now = new Date();
+
+        const timeDisplay = document.getElementById('live-clock');
+        timeDisplay.textContent = now.toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
+        const dateDisplay = document.getElementById('current-date');
+        dateDisplay.textContent = now.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+
+    setInterval(updateClock, 1000);
+
+    updateClock();
     </script>
 
-    <!-- Font Awesome for icons -->
     <script src="" crossorigin="anonymous"></script>
 </body>
 </html>
