@@ -410,13 +410,6 @@ input[type="date"]:disabled:hover {
         <div class="container">
             <div class="content">
                 <h2>Profile Settings</h2>
-            
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-
                 <form id="settingsForm" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 

@@ -1,4 +1,5 @@
 import os
+from datetime import timezone
 
 from django.utils.translation import gettext as _
 from django.core.files.base import ContentFile
@@ -87,8 +88,11 @@ class User(AbstractBaseUser):
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
 
-    @property
     def get_username(self):
+        return self.email
+
+    @property
+    def username(self):
         return self.email.split('@')[0]
 
     def __str__(self):
@@ -283,3 +287,22 @@ class TimeRecord(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} - {self.date}"
+
+
+class SalarySlipRequest(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected')
+    )
+
+    employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='salary_slip_requests')
+    request_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    month = models.DateField(help_text="Month and year of requested salary slip")
+    notes = models.TextField(blank=True, null=True)
+    processed_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='processed_requests', null=True, blank=True)
+    processed_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Salary Slip Request - {self.employee.get_full_name()} - {self.month.strftime('%B %Y')}"

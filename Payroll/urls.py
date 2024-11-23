@@ -51,4 +51,7 @@ urlpatterns = [
     path('salary-slips/', views.salary_slips, name='salary_slips'),
     path('salary-slips/download/<int:payment_id>/', views.download_salary_slip, name='download_salary_slip'),
     path('salary-slips/regenerate/<int:payment_id>/', views.regenerate_pdf, name='regenerate_pdf'),
+    path('request-salary-slip/', views.request_salary_slip, name='request_salary_slip'),
+    path('requests/', views.view_requests, name='view_requests'),
+    path('process-request/<int:request_id>/', views.process_request, name='process_request'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

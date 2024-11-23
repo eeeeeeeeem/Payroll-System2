@@ -441,9 +441,9 @@
         }
 
         .logout-form {
-            position: absolute;
             bottom: 20px;
             left: 20px;
+            margin-top: 10px;
         }
 
         .logout-button {
@@ -563,12 +563,14 @@
         font-size: 1.1em;
         font-weight: 500;
         margin-bottom: 2px;
+        color: black;
     }
 
     .date {
         display: block;
         font-size: 0.8em;
         opacity: 0.8;
+        color: black;
     }
 
     /* Added work status styles */
@@ -685,6 +687,18 @@
         </div>
         <div class="menu-item" onclick="window.location.href='{% url 'settings_user' %}'">
             <i class="fas fa-user-cog"></i> Settings
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+
+        {% if user.role == 'EMPLOYEE' %}
+        <div class="menu-item" onclick="window.location.href='{% url 'request_salary_slip' %}'">
+            <i class="fas fa-user-cog"></i> Request Salary Slip
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+        {% endif %}
+
+        <div class="menu-item" onclick="window.location.href='{% url 'view_requests' %}'">
+            <i class="fas fa-user-cog"></i> View Request
             <i class="fas fa-chevron-right arrow"></i>
         </div>
 

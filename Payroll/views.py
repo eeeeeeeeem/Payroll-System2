@@ -21,9 +21,9 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import SalaryPaymentForm
+from .forms import SalaryPaymentForm, SalarySlipRequestForm
 from Payroll.forms import PostForm, UserSettingsForm
-from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment, TimeRecord
+from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment, TimeRecord, SalarySlipRequest
 from Payroll.serializers import UserSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -31,6 +31,94 @@ from .models import JobTitle
 import logging
 logger = logging.getLogger(__name__)
 
+
+@login_required
+def request_salary_slip(request):
+    print("Method:", request.method)  # Debug print
+
+    if request.method == 'POST':
+        print("POST data:", request.POST)  # Debug print
+        selected_month = int(request.POST.get('month'))
+        selected_year = int(request.POST.get('year'))
+        notes = request.POST.get('notes', '')
+
+        print(f"Month: {selected_month}, Year: {selected_year}, Notes: {notes}")  # Debug print
+
+        try:
+            request_date = datetime.datetime(selected_year, selected_month, 1).date()
+
+            # Check for existing request
+            existing_request = SalarySlipRequest.objects.filter(
+                employee=request.user,
+                month__year=selected_year,
+                month__month=selected_month
+            ).exists()
+
+            print(f"Existing request: {existing_request}")  # Debug print
+
+            if existing_request:
+                messages.error(request, 'You have already submitted a request for this month.')
+            else:
+                # Create new request
+                new_request = SalarySlipRequest.objects.create(
+                    employee=request.user,
+                    month=request_date,
+                    notes=notes,
+                    status='PENDING'
+                )
+                print(f"New request created: {new_request}")  # Debug print
+                messages.success(request, 'Salary slip request submitted successfully.')
+                return redirect('view_requests')
+
+        except Exception as e:
+            print(f"Error occurred: {str(e)}")  # Debug print
+            messages.error(request, f'Error submitting request: {str(e)}')
+
+    # For GET request or if POST fails
+    current_date = datetime.datetime.now()
+    context = {
+        'current_month': current_date.month,
+        'current_year': current_date.year,
+        'years': range(current_date.year - 2, current_date.year + 1)
+    }
+
+    return render(request, 'request_salary_slip.html', context)
+
+@login_required
+def view_requests(request):  # 'request' is the parameter name
+    if request.user.role == 'HR':
+        salary_requests = SalarySlipRequest.objects.filter(status='PENDING').order_by('-request_date')  # Changed variable name to salary_requests
+        template = 'hr_requests.html'
+    else:
+        salary_requests = SalarySlipRequest.objects.filter(employee=request.user).order_by('-request_date')  # Changed variable name to salary_requests
+        template = 'employee_requests.html'
+
+    return render(request, template, {'requests': salary_requests})  # Pass salary_requests in context
+
+
+@login_required
+def process_request(request, request_id):
+    if request.user.role != 'HR':
+        messages.error(request, 'You do not have permission to process requests.')
+        return redirect('dashboard')
+
+    slip_request = get_object_or_404(SalarySlipRequest, id=request_id)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action in ['APPROVED', 'REJECTED']:
+            slip_request.status = action
+            slip_request.processed_by = request.user
+            slip_request.processed_date = timezone.now()
+            slip_request.save()
+
+            if action == 'APPROVED':
+                messages.success(request,
+                               f'Request approved for {slip_request.employee.get_full_name()}')
+            else:
+                messages.info(request, f'Request rejected for {slip_request.employee.get_full_name()}')
+
+    return redirect('view_requests')
 
 @login_required
 def regenerate_pdf(request, payment_id):
@@ -303,53 +391,69 @@ class RegisterView(APIView):
 
 
 def register_form(request):
-    # Retrieve job titles for display
     job_titles = JobTitle.objects.all().order_by('start_date')
 
     if request.method == 'POST':
         form = UserSettingsForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save(commit=False)
-            password = request.POST.get('password')
-            if password:
-                user.set_password(password)
-            user.save()
-            messages.success(request, 'Registration successful! Please log in.')
-            return redirect('login_form')  # Replace 'login_form' with your actual login URL name
+            try:
+                user = form.save(commit=False)
+                user.is_active = True  # Set user as active
+                user.save()
+                messages.success(request, 'Registration successful! Please log in.')
+                return redirect('login_form')
+            except Exception as e:
+                messages.error(request, f'Registration failed: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = UserSettingsForm()
 
-    return render(request, 'register.html', {'form': form, 'job_titles': job_titles})
+    return render(request, 'register.html', {
+        'form': form,
+        'job_titles': job_titles
+    })
+
+
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
 
-        try:
-            # Use authenticate to get the user with the correct backend
-            user = authenticate(request, email=email, password=password)
+        print(f"Login attempt with email: {email}")  # Debug print
 
-            if user is None:
+        try:
+            # First check if user exists
+            try:
+                user = User.objects.get(email=email)
+                print(f"Found user: {user.email}")
+            except User.DoesNotExist:
+                print("User not found")
+                raise AuthenticationFailed('Invalid email or password')
+
+            # Use authenticate with username=email
+            authenticated_user = authenticate(request, username=email, password=password)
+            print(f"Authentication result: {authenticated_user}")
+
+            if authenticated_user is None:
+                print("Authentication failed")
                 raise AuthenticationFailed('Invalid email or password')
 
             # Update last login
-            user.last_login = datetime.datetime.now(datetime.timezone.utc)
-            user.save()
+            authenticated_user.last_login = datetime.datetime.now(datetime.timezone.utc)
+            authenticated_user.save()
 
             # Create JWT token
             payload = {
-                'id': user.id,
+                'id': authenticated_user.id,
                 'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=60),
                 'iat': datetime.datetime.now(datetime.timezone.utc)
             }
 
             token = jwt.encode(payload, 'secret', algorithm='HS256')
-            token = token if isinstance(token, str) else token.decode('utf-8')
 
-            # Log the user in with the ModelBackend
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            # Log the user in
+            login(request, authenticated_user)
 
             response = redirect('dashboard')
             response.set_cookie(key='jwt', value=token, httponly=True)

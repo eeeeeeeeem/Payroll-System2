@@ -1,5 +1,7 @@
+from datetime import date
+
 from django import forms
-from Payroll.models import User, Post, JobTitle, EmploymentTerms, SalaryPayment
+from Payroll.models import User, Post, JobTitle, EmploymentTerms, SalaryPayment, SalarySlipRequest
 
 
 class UserSettingsForm(forms.ModelForm):
@@ -12,7 +14,6 @@ class UserSettingsForm(forms.ModelForm):
     address = forms.CharField(required=False)
     cityId = forms.CharField(required=False)
 
-    # Modified employment start and end to be read-only
     employement_start = forms.DateField(
         required=False,
         widget=forms.DateInput(attrs={
@@ -72,6 +73,10 @@ class UserSettingsForm(forms.ModelForm):
         })
     )
 
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        required=True
+    )
     class Meta:
         model = User
         fields = [
@@ -86,6 +91,7 @@ class UserSettingsForm(forms.ModelForm):
             'employement_end',
             'profile_picture',
             'job_title',
+            'password'
         ]
 
 
@@ -132,7 +138,10 @@ class UserSettingsForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        user = super().save(commit=commit)
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])  # Hash the password
+        if commit:
+            user.save()
         return user
 
 
@@ -188,3 +197,29 @@ class SalaryPaymentForm(forms.ModelForm):
     class Meta:
         model = SalaryPayment
         fields = ['user', 'base_salary', 'bonus', 'deduction', 'payment_date']
+
+
+class SalarySlipRequestForm(forms.ModelForm):
+    month = forms.DateField(widget=forms.HiddenInput())  # We'll set this via the month/year selections
+    selected_month = forms.ChoiceField(
+        choices=[(i, date(2000, i, 1).strftime('%B')) for i in range(1, 13)],
+        label="Month"
+    )
+    selected_year = forms.ChoiceField(label="Year")
+    notes = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        required=False,
+        label="Notes (Optional)"
+    )
+
+    class Meta:
+        model = SalarySlipRequest
+        fields = ['notes']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Set up year choices
+        current_year = date.today().year
+        self.fields['selected_year'].choices = [
+            (year, str(year)) for year in range(current_year - 2, current_year + 1)
+        ]

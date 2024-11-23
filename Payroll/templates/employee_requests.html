@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Salary Slip Requests</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #5cb85c;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #3a7bc8;
+        }
+
+        .requests-container {
+            margin-top: 2rem;
+        }
+
+        .request-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .request-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        h5 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.approved { background: #d4edda; color: #155724; }
+        .status.rejected { background: #f8d7da; color: #721c24; }
+
+        p {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .btn {
+                display: block;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-invoice-dollar"></i> My Salary Slip Requests</h1>
+        <a href="{% url 'request_salary_slip' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Request
+        </a>
+        
+         <a href="{% url 'dashboard' %}" class="btn btn-primary">
+            <i></i> Homepage
+        </a>
+        
+        <div class="requests-container">
+            {% for request in requests %}
+            <div class="request-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-calendar-alt"></i> Request for {{ request.month|date:"F Y" }}</h5>
+                    <span class="status {{ request.status|lower }}">
+                        {{ request.status }}
+                    </span>
+                </div>
+                <p><i class="fas fa-clock"></i> Submitted on: {{ request.request_date }}</p>
+                {% if request.notes %}
+                <p><i class="fas fa-sticky-note"></i> Notes: {{ request.notes }}</p>
+                {% endif %}
+                {% if request.processed_date %}
+                <p><i class="fas fa-check-circle"></i> Processed on: {{ request.processed_date }}</p>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p>No requests found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
