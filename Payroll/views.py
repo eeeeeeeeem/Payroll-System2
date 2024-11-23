@@ -1,9 +1,11 @@
+import os
 from calendar import monthrange
 from functools import wraps
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.core.files.base import ContentFile
+from django.http import JsonResponse, FileResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
@@ -29,6 +31,98 @@ from .models import JobTitle
 import logging
 logger = logging.getLogger(__name__)
 
+
+@login_required
+def regenerate_pdf(request, payment_id):
+    payment = get_object_or_404(SalaryPayment, id=payment_id, user=request.user)
+    if payment.generate_pdf():
+        messages.success(request, 'PDF regenerated successfully.')
+    else:
+        messages.error(request, 'Failed to regenerate PDF.')
+    return redirect('salary_slips')
+
+def generate_pdf(self):
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from io import BytesIO
+        import os
+
+        print(f"Generating PDF for payment {self.id}")  # Debug print
+
+        buffer = BytesIO()
+
+        # ... your existing PDF generation code ...
+
+        pdf = buffer.getvalue()
+        buffer.close()
+
+        # Create the filename and full path
+        filename = f'salary_slip_{self.user.email}_{self.payment_date.strftime("%Y_%m")}.pdf'
+
+        # Ensure the upload directory exists
+        upload_dir = os.path.join(settings.MEDIA_ROOT, 'salary_slips',
+                                  self.payment_date.strftime('%Y'),
+                                  self.payment_date.strftime('%m'))
+        os.makedirs(upload_dir, exist_ok=True)
+
+        print(f"Saving PDF to {upload_dir}/{filename}")  # Debug print
+
+        # Save the PDF
+        self.pdf_file.save(filename, ContentFile(pdf), save=True)
+
+        print(f"PDF generated successfully: {self.pdf_file.path}")  # Debug print
+
+    except Exception as e:
+        print(f"Error generating PDF: {str(e)}")  # Debug print
+        raise
+
+def ensure_media_dirs():
+    media_root = settings.MEDIA_ROOT
+    salary_slips_dir = os.path.join(media_root, 'salary_slips')
+
+    # Create base media directory
+    if not os.path.exists(media_root):
+        os.makedirs(media_root)
+
+    # Create salary slips directory
+    if not os.path.exists(salary_slips_dir):
+        os.makedirs(salary_slips_dir)
+
+
+@login_required
+def salary_slips(request):
+    salary_payments = request.user.get_salary_slips()
+    return render(request, 'salary_slips.html', {
+        'salary_payments': salary_payments,
+        'title': 'My Salary Slips'
+    })
+
+
+@login_required
+def download_salary_slip(request, payment_id):
+    payment = get_object_or_404(SalaryPayment, id=payment_id, user=request.user)
+    pdf_path = payment.get_pdf_path()
+
+    if os.path.exists(pdf_path):
+        return FileResponse(
+            open(pdf_path, 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'salary_slip_{payment.payment_date.strftime("%Y_%m")}.pdf'
+        )
+
+    if payment.generate_pdf():
+        return FileResponse(
+            open(pdf_path, 'rb'),
+            content_type='application/pdf',
+            as_attachment=True,
+            filename=f'salary_slip_{payment.payment_date.strftime("%Y_%m")}.pdf'
+        )
+
+    return HttpResponse("Unable to generate PDF", status=500)
 
 def hr_required(view_func):
     @wraps(view_func)
@@ -100,10 +194,14 @@ def add_comment(request, post_id):
 # Create Salary Payment
 @hr_required
 def salary_payment_create(request):
+    ensure_media_dirs()
     if request.method == 'POST':
         form = SalaryPaymentForm(request.POST)
         if form.is_valid():
-            form.save()
+            payment = form.save()
+            payment.generate_pdf()
+            payment.save()
+            messages.success(request, 'Salary payment created successfully.')
             return redirect('salary_payment_list')
     else:
         form = SalaryPaymentForm()

@@ -1,0 +1,74 @@
+{% block content %}
+<div class="container mt-4" style="max-width: 1200px; margin: auto; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+    <h2 style="color: #2c3e50; font-size: 3rem; text-align: center; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+        <span style="background: linear-gradient(45deg, #3498db, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            {{ title }}
+        </span>
+    </h2>
+    
+    <div class="row mt-4">
+        {% for payment in salary_payments %}
+        <div class="col-md-4 mb-4">
+            <div class="card" style="border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="card-body" style="background: linear-gradient(45deg, #ffffff, #f8f9fa); position: relative; z-index: 1;">
+                    <div style="position: absolute; top: -20px; right: -20px; background: #3498db; width: 100px; height: 100px; border-radius: 50%; z-index: -1; opacity: 0.1;"></div>
+                    <h5 class="card-title" style="color: #34495e; font-size: 1.5rem; margin-bottom: 20px; border-bottom: 2px solid #3498db; padding-bottom: 10px; position: relative;">
+                        Salary Slip - {{ payment.payment_date|date:"F Y" }}
+                        <span style="position: absolute; bottom: -2px; left: 0; width: 50px; height: 2px; background: #e74c3c;"></span>
+                    </h5>
+                    <p class="card-text" style="font-size: 1.1rem; line-height: 1.8; color: #555;">
+                        <span style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong style="color: #2ecc71;">Base Salary:</strong>
+                            <span style="color: #34495e; font-weight: bold;">${{ payment.base_salary }}</span>
+                        </span>
+                        <span style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong style="color: #e74c3c;">Total Payment:</strong>
+                            <span style="color: #34495e; font-weight: bold;">${{ payment.total_payment }}</span>
+                        </span>
+                        <span style="display: flex; justify-content: space-between;">
+                            <strong style="color: #f39c12;">Payment Date:</strong>
+                            <span style="color: #34495e;">{{ payment.payment_date }}</span>
+                        </span>
+                    </p>
+                    <div class="mt-4" style="display: flex; justify-content: space-between; align-items: center;">
+                        <a href="{% url 'download_salary_slip' payment.id %}" 
+                           class="btn" style="background: linear-gradient(45deg, #3498db, #2980b9); border: none; padding: 10px 20px; border-radius: 50px; color: white; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);">
+                            <i class="fas fa-download" style="margin-right: 5px;"></i> Download PDF
+                        </a>
+                        <form method="post" action="{% url 'regenerate_pdf' payment.id %}" 
+                              class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn" style="background: linear-gradient(45deg, #f39c12, #e67e22); border: none; padding: 10px 20px; border-radius: 50px; color: white; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(50,50,93,.11), 0 1px 3px rgba(0,0,0,.08);">
+                                <i class="fas fa-sync" style="margin-right: 5px;"></i> Regenerate
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert" style="background: linear-gradient(45deg, #3498db, #2980b9); color: white; padding: 30px; border-radius: 15px; text-align: center; font-size: 1.3rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); animation: pulse 2s infinite;">
+                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 15px; display: block;"></i>
+                No salary slips available.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        50% {
+            box-shadow: 0 5px 30px rgba(52,152,219,0.3);
+        }
+        100% {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    }
+</style>
+{% endblock %}
+

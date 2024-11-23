@@ -156,7 +156,7 @@ class DepartmentHistoryForm(forms.ModelForm):
 
 class SalaryPaymentForm(forms.ModelForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.filter(role='EMPLOYEE'),
         label="Employee",
         widget=forms.Select(attrs={'class': 'form-control', 'required': 'true'})
     )

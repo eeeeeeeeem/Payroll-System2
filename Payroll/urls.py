@@ -1,4 +1,7 @@
 from tkinter.font import names
+
+from django.conf.urls.static import static
+
 from . import views
 from django.urls import path
 from .views import RegisterView, register_form, LoginView, login_form, UserView, LogoutView, job_desk, employees, \
@@ -45,4 +48,7 @@ urlpatterns = [
     path('delete-account/', views.delete_account, name='delete_account'),
     path('signup/hr', views.hr_signup, name='hr_signup'),
 
-]
+    path('salary-slips/', views.salary_slips, name='salary_slips'),
+    path('salary-slips/download/<int:payment_id>/', views.download_salary_slip, name='download_salary_slip'),
+    path('salary-slips/regenerate/<int:payment_id>/', views.regenerate_pdf, name='regenerate_pdf'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

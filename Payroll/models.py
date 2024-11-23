@@ -1,8 +1,12 @@
-from importlib.resources._common import _
+import os
 
+from django.utils.translation import gettext as _
+from django.core.files.base import ContentFile
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from rest_framework.exceptions import ValidationError
+
+from Payroll_System import settings
 
 
 class UserManager(BaseUserManager):
@@ -77,6 +81,16 @@ class User(AbstractBaseUser):
     def has_hr_permission(self):
         return self.is_hr()
 
+    def get_salary_slips(self):
+        return SalaryPayment.objects.filter(user=self).order_by('-payment_date')
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def get_username(self):
+        return self.email.split('@')[0]
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -128,6 +142,103 @@ class SalaryPayment(models.Model):
     bonus = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_date = models.DateField()
+    pdf_file = models.FileField(upload_to='salary_slips/%Y/%m/', null=True, blank=True)
+
+    def get_pdf_path(self):
+        return os.path.join(
+            settings.SALARY_SLIPS_DIR,
+            str(self.user.id),
+            self.payment_date.strftime('%Y'),
+            self.payment_date.strftime('%m'),
+            f'salary_slip_{self.id}.pdf'
+        )
+
+    def generate_pdf(self):
+        try:
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import letter
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from io import BytesIO
+
+            # Create directory structure
+            pdf_path = self.get_pdf_path()
+            os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+
+            # Generate PDF
+            doc = SimpleDocTemplate(
+                pdf_path,
+                pagesize=letter,
+                rightMargin=72,
+                leftMargin=72,
+                topMargin=72,
+                bottomMargin=72
+            )
+
+            story = []
+            styles = getSampleStyleSheet()
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading1'],
+                fontSize=24,
+                spaceAfter=30
+            )
+
+            # Add content to PDF
+            story.append(Paragraph("Payroll System", title_style))
+            story.append(Paragraph("SALARY SLIP", styles["Heading2"]))
+            story.append(Spacer(1, 20))
+
+            employee_info = [
+                ["Employee Name:", f"{self.user.first_name} {self.user.last_name}"],
+                ["Payment Date:", f"{self.payment_date}"],
+                ["Employee ID:", f"{self.user.id}"]
+            ]
+
+            t = Table(employee_info, colWidths=[120, 300])
+            t.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ]))
+            story.append(t)
+            story.append(Spacer(1, 20))
+
+            salary_data = [
+                ["Description", "Amount"],
+                ["Base Salary", f"${self.base_salary}"],
+                ["Bonus", f"${self.bonus}"],
+                ["Deductions", f"-${self.deduction}"],
+                ["Total Payment", f"${self.total_payment}"]
+            ]
+
+            t = Table(salary_data, colWidths=[200, 200])
+            t.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 12),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ]))
+            story.append(t)
+
+            doc.build(story)
+            return True
+
+        except Exception as e:
+            print(f"Error generating PDF: {str(e)}")
+            return False
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            self.generate_pdf()
 
     @property
     def total_payment(self):

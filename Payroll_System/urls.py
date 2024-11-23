@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
+from reportlab.rl_settings import documentLang
 
 from Payroll.views import Homepage
 
@@ -26,7 +27,7 @@ urlpatterns = [
     path('api/', include('Payroll.urls')),
     path('', include('Payroll.urls')),
     path('', Homepage, name='homepage'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

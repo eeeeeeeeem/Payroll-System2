@@ -357,6 +357,35 @@ input[type="date"]:disabled:hover {
     background-color: #f8d7da;
     border-color: #f5c6cb;
 }
+
+.menu-item {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--button-bg);
+    color: white;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.menu-item a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.menu-item i {
+    margin-right: 10px;
+    font-size: 1.5rem;
+}
+
+.menu-item:hover {
+    background: var(--button-hover);
+    transform: translateY(-2px);
+}
     </style>
 </head>
 <body>
@@ -381,15 +410,7 @@ input[type="date"]:disabled:hover {
         <div class="container">
             <div class="content">
                 <h2>Profile Settings</h2>
-
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
+            
                 {% if form.non_field_errors %}
                     <div class="alert alert-danger">
                         {{ form.non_field_errors }}
@@ -499,6 +520,12 @@ input[type="date"]:disabled:hover {
                         <button type="submit" class="btn btn-danger">Delete Account</button>
                     </form>
                 </div>
+            
+            <div class="menu-item">
+                <a href="{% url 'salary_slips' %}">
+                    <i class="fas fa-file-invoice-dollar"></i> My Salary Slips
+                </a>
+            </div>
             </div>
         </div>
     </div>
