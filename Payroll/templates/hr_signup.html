@@ -10,29 +10,8 @@
     {% block content %}
     <div class="container">
         <h1>HR Registration</h1>
-        {% if form.errors %}
-        <div class="error-message">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <p>{{ field.label }}: {{ error }}</p>
-                {% endfor %}
-            {% endfor %}
-        </div>
-        {% endif %}
-        
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <form id="hrSignupForm" action="{% url 'hr_signup' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <!-- Hidden field for role -->
             <input type="hidden" name="role" value="HR">
             
             <div class="form-group">

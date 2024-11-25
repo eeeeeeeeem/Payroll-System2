@@ -33,6 +33,7 @@ class UserSettingsForm(forms.ModelForm):
         })
     )
 
+
     profile_picture = forms.ImageField(required=False)
     job_title = forms.ModelChoiceField(
         queryset=JobTitle.objects.all(),
@@ -74,8 +75,10 @@ class UserSettingsForm(forms.ModelForm):
     )
 
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        required=True
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+        }),
+        required=True,
     )
     class Meta:
         model = User

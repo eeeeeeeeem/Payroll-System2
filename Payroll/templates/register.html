@@ -184,25 +184,6 @@
 <body>
     <div class="container">
         <h1>Join Our Team</h1>
-        {% if form.errors %}
-        <div class="error-message">
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <p>{{ field.label }}: {{ error }}</p>
-                {% endfor %}
-            {% endfor %}
-        </div>
-        {% endif %}
-        
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
         <form id="registrationForm" action="{% url 'register_form' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">

@@ -3,331 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Desk - Manage Job Postings</title>
+    <title>Add Employment Terms</title>
+    <!-- Add Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
         :root {
             --primary-color: #6e62e5;
             --primary-light: #f0eeff;
             --text-color: #333;
+            --error-color: #ff4757;
+            --success-color: #2ed573;
             --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --green: #4caf50;
-            --red: #f44336;
-            --animation-speed: 0.3s;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-gradient);
-            display: flex;
-            color: var(--text-color);
             min-height: 100vh;
-            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-gradient);
+            padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
         }
 
         h1 {
             color: var(--primary-color);
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2rem;
         }
 
-        .job-list {
-            list-style-type: none;
-            padding: 0;
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
-        .job-item {
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
-        }
-
-        .job-item:hover {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .job-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
+        .form-group label {
+            display: block;
             margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
-        .job-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .job-department, .job-salary {
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
             font-size: 1rem;
-            color: #666;
-            display: flex;
-            align-items: center;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .job-department::before, .job-salary::before {
-            content: '';
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            margin-right: 0.5rem;
-            background-size: contain;
-            background-repeat: no-repeat;
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        .job-department::before {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>');
-        }
-
-        .job-salary::before {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
-        }
-
-        .job-description, .job-responsibilities, .job-requirements {
-            margin-bottom: 1rem;
-            color: #555;
-        }
-
-        .job-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-apply {
-            background-color: var(--green);
-            color: #fff;
-        }
-
-        .btn-apply:hover {
-            background-color: #45a049;
-        }
-
-        .btn-toggle {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-
-        .btn-toggle:hover {
-            background-color: #5753c9;
-        }
-
-        .additional-info {
-            display: none;
+            transition: all 0.3s ease;
             margin-top: 1rem;
-            padding: 1rem;
-            background-color: var(--primary-light);
-            border-radius: 4px;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
+        button:hover {
+            background: #5753c9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 98, 229, 0.3);
+        }
 
-            .job-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+        button:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(120%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Loading animation */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
             }
         }
-                a.btn {
-            text-decoration: none;
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: #fff;
-            }
+
+        input[type="date"]:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+        }
+
+        /* Style for date inputs */
+        input[type="date"] {
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* Custom styling for date inputs */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+            bottom: 0;
+            color: transparent;
+            cursor: pointer;
+            height: auto;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: auto;
+        }
         
-        a.btn:hover {
-            background-color: #5753c9;
+        button:disabled {
+            background-color: #cccccc !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    
+        button:disabled:hover {
+            background-color: #cccccc !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    
+        input:invalid {
+            border-color: var(--error-color);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Job Desk</h1>
-        <p>Manage job postings and applications here.</p>
-        <ul class="job-list">
-            <li class="job-item">
-                <h2 class="job-title">Software Engineer</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Engineering</p>
-                    <p class="job-salary">Salary: $80,000 - $120,000</p>
-                </div>
-                <p class="job-description">We are seeking a talented Software Engineer to join our dynamic team. The ideal candidate will have strong problem-solving skills and experience in developing scalable web applications.</p>
-                <p class="job-responsibilities">Key Responsibilities: Develop and maintain web applications, collaborate with cross-functional teams, write clean and efficient code.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Computer Science, 3+ years of experience in software development, proficiency in JavaScript and Python.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. We also provide opportunities for professional development and career growth within our organization.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-            <li class="job-item">
-                <h2 class="job-title">Data Scientist</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Data Science</p>
-                    <p class="job-salary">Salary: $90,000 - $130,000</p>
-                </div>
-                <p class="job-description">We are looking for a Data Scientist to analyze large amounts of raw information to find patterns that will help improve our company.</p>
-                <p class="job-responsibilities">Key Responsibilities: Analyze large amounts of information to discover trends and patterns, build predictive models and machine-learning algorithms.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Data Science, 2+ years of experience in data analysis, proficiency in R and Python.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to work on cutting-edge projects and contribute to data-driven decision-making processes.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-            <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-        </ul>
+        <h1>Add Employment Terms</h1>
+
+        <form id="salaryForm" onsubmit="submitForm(event)">
+            <div class="form-group">
+                <label for="agreed_salary">Agreed Salary</label>
+                <input type="number" step="0.01" id="agreed_salary" name="agreed_salary" required min="0" placeholder="Enter agreed salary">
+            </div>
+            <div class="form-group">
+                <label for="salary_start_date">Salary Start Date</label>
+                <input type="date" id="salary_start_date" name="salary_start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="salary_end_date">Salary End Date</label>
+                <input type="date" id="salary_end_date" name="salary_end_date" required>
+            </div>
+            <button type="submit" id="submitButton">Add Employment Terms</button>
+        </form>
     </div>
+
+    <div id="toast" class="toast"></div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.btn-toggle');
-            const applyButtons = document.querySelectorAll('.btn-apply');
+    // Get all the form elements
+    const startDateInput = document.getElementById('salary_start_date');
+    const endDateInput = document.getElementById('salary_end_date');
+    const salaryInput = document.getElementById('agreed_salary');
+    const submitButton = document.getElementById('submitButton');
 
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const additionalInfo = this.closest('.job-item').querySelector('.additional-info');
-                    if (additionalInfo.style.display === 'none' || additionalInfo.style.display === '') {
-                        additionalInfo.style.display = 'block';
-                        this.textContent = 'Show Less';
-                        this.setAttribute('aria-expanded', 'true');
-                    } else {
-                        additionalInfo.style.display = 'none';
-                        this.textContent = 'Show More';
-                        this.setAttribute('aria-expanded', 'false');
-                    }
-                });
+    // Set minimum date as today for start date
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.min = today;
+
+    // Function to check if form is valid
+    function checkFormValidity() {
+        const isSalaryValid = salaryInput.value && parseFloat(salaryInput.value) > 0;
+        const isStartDateValid = startDateInput.value;
+        const isEndDateValid = endDateInput.value;
+        const areDatesValid = validateDates(false); // false means don't show toast
+
+        submitButton.disabled = !(isSalaryValid && isStartDateValid && isEndDateValid && areDatesValid);
+    }
+
+    // Handle salary input changes
+    salaryInput.addEventListener('input', checkFormValidity);
+
+    // Handle start date changes
+    startDateInput.addEventListener('change', function() {
+        // Clear end date when start date changes
+        endDateInput.value = '';
+        
+        // Set minimum date for end date input
+        endDateInput.min = this.value;
+        
+        // Enable end date input only when start date is selected
+        endDateInput.disabled = !this.value;
+
+        checkFormValidity();
+    });
+
+    // Handle end date changes
+    endDateInput.addEventListener('change', checkFormValidity);
+
+    // Initialize end date as disabled
+    endDateInput.disabled = true;
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        setTimeout(() => toast.classList.add('show'), 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    function validateDates(showToastMessage = true) {
+        if (!startDateInput.value || !endDateInput.value) return false;
+        
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        
+        if (startDate >= endDate) {
+            if (showToastMessage) {
+                showToast('End date must be after start date', 'error');
+            }
+            return false;
+        }
+        return true;
+    }
+
+    async function submitForm(event) {
+        event.preventDefault();
+        
+        if (!validateDates(true)) {
+            return;
+        }
+
+        const button = event.target.querySelector('button');
+        button.classList.add('loading');
+        button.textContent = 'Submitting...';
+
+        const formData = new FormData(document.getElementById('salaryForm'));
+
+        try {
+            const response = await fetch('{% url "add_salary" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                credentials: 'include'
             });
 
-            applyButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const jobTitle = this.closest('.job-item').querySelector('.job-title').textContent;
-                    alert('Application process initiated for ' + jobTitle);
-                });
-            });
-        });
-    </script>
+            const data = await response.json();
+
+            if (response.ok) {
+                showToast('Employment terms added successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '{% url "dashboard" %}';
+                }, 1500);
+            } else {
+                showToast(data.error || 'An error occurred', 'error');
+            }
+        } catch (error) {
+            showToast('An error occurred', 'error');
+            console.error('Error:', error);
+        } finally {
+            button.classList.remove('loading');
+            button.textContent = 'Add Employment Terms';
+        }
+    }
+
+    // Add form submit event listener
+    document.getElementById('salaryForm').addEventListener('submit', submitForm);
+
+    // Initialize date inputs on page load
+    window.addEventListener('load', function() {
+        // Set minimum date for start date (today)
+        startDateInput.min = today;
+        
+        // Disable end date initially
+        endDateInput.disabled = true;
+        
+        // If start date is already set (e.g., in edit mode)
+        if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            endDateInput.disabled = false;
+        }
+
+        // Initial check for form validity
+        checkFormValidity();
+    });
+</script>
 </body>
 </html>

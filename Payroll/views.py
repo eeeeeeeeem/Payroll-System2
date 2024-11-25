@@ -93,7 +93,7 @@ def view_requests(request):  # 'request' is the parameter name
         salary_requests = SalarySlipRequest.objects.filter(employee=request.user).order_by('-request_date')  # Changed variable name to salary_requests
         template = 'employee_requests.html'
 
-    return render(request, template, {'requests': salary_requests})  # Pass salary_requests in context
+    return render(request, template, {'requests': salary_requests})
 
 
 @login_required
@@ -330,7 +330,6 @@ def settings_user(request):
         if form.is_valid():
             user = form.save()
 
-            # Don't update employment terms from settings page
             messages.success(request, 'Profile updated successfully!')
             return redirect('settings_user')
         else:
@@ -682,6 +681,7 @@ def get_user_from_token(request):
 
     user = User.objects.filter(id=payload['id']).first()
     return user
+
 def Homepage(request):
     return render(request, 'homepage.html')
 
@@ -769,8 +769,7 @@ def posting_user(request):
 def job_title_register(request):
     return render(request, 'job_title.html')
 
-def employment_terms_register(request):
-    return render(request, 'employment_terms.html')
+
 def job_title_create(request):
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -784,6 +783,7 @@ def job_title_create(request):
             return render(request, 'job_title.html', {'error': 'All fields are required'})
 
     return render(request, 'job_title.html')
+
 @login_required
 def add_job(request):
     if request.method == 'POST':
@@ -801,7 +801,13 @@ def add_job(request):
             description=description
         )
         return redirect('job_desk')
+    return render(request, 'job_deskkk.html')
+
+
+def pay_jobs(request):
     return render(request, 'job_desk.html')
+
+
 def all_employee(request):
     user = get_user_from_token(request)
     employees = User.objects.all()

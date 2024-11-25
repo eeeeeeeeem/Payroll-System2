@@ -497,7 +497,7 @@ input[type="date"]:disabled:hover {
                 </form>
 
                 {% if not user.is_hr %}
-                <form action="{% url 'employment_terms_register' %}" method="get">
+                <form action="{% url 'pay_jobs' %}" method="get">
                     <button type="submit" class="btn">Add your Employment Terms</button>
                 </form>
                 {% endif %}
