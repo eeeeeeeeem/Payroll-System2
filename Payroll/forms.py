@@ -226,3 +226,5 @@ class SalarySlipRequestForm(forms.ModelForm):
         self.fields['selected_year'].choices = [
             (year, str(year)) for year in range(current_year - 2, current_year + 1)
         ]
+
+

@@ -1,0 +1,107 @@
+<!-- Payroll/templates/delete_department.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Department</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #4e73df;
+            --primary-light: #dce7fc;
+            --text-color: #4f4f4f;
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        p {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color var(--transition), transform var(--transition);
+        }
+
+        button:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .cancel-button {
+            background-color: #f44336;
+        }
+
+        .cancel-button:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Department</h1>
+        <p>Are you sure you want to delete the department "{{ department.department_name }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Yes, Delete</button>
+            <a href="{% url 'department_list' %}">
+                <button type="button" class="cancel-button">Cancel</button>
+            </a>
+        </form>
+    </div>
+</body>
+</html>

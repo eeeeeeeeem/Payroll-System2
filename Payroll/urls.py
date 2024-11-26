@@ -7,7 +7,7 @@ from django.urls import path
 from .views import RegisterView, register_form, LoginView, login_form, UserView, LogoutView, job_desk, employees, \
     all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post, \
     job_title_register, job_title_create, add_job, create_department, \
-    create_department_history, delete_account, pay_jobs
+    create_department_history, delete_account, pay_jobs, edit_department, delete_department , edit_department_history, delete_department_history
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -55,4 +55,8 @@ urlpatterns = [
     path('request-salary-slip/', views.request_salary_slip, name='request_salary_slip'),
     path('requests/', views.view_requests, name='view_requests'),
     path('process-request/<int:request_id>/', views.process_request, name='process_request'),
+    path('department/edit/<int:id>/', edit_department, name='edit_department'),
+    path('department/delete/<int:id>/', delete_department, name='delete_department'),
+    path('department_history/edit/<int:id>/', edit_department_history, name='edit_department_history'),
+    path('department_history/delete/<int:id>/', delete_department_history, name='delete_department_history'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

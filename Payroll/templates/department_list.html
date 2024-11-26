@@ -146,6 +146,41 @@
             font-size: 1rem;
             font-weight: 500;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons a {
+            text-decoration: none;
+        }
+
+        .edit-button, .delete-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color var(--transition), transform var(--transition);
+        }
+
+        .edit-button {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #e53935;
+        }
     </style>
 </head>
 <body>
@@ -167,6 +202,14 @@
             {% for department in departments %}
                 <li>
                     <span>{{ department.department_name }}</span>
+                    <div class="action-buttons">
+                        <a href="{% url 'edit_department' department.id %}">
+                            <button class="edit-button">Edit</button>
+                        </a>
+                        <a href="{% url 'delete_department' department.id %}">
+                            <button class="delete-button">Delete</button>
+                        </a>
+                    </div>
                 </li>
             {% empty %}
                 <li>No departments found.</li>

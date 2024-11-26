@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Department History</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+            --animation-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        p {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color var(--animation-speed), transform var(--animation-speed);
+        }
+
+        button:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .cancel-button {
+            background-color: #f44336;
+        }
+
+        .cancel-button:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Department History</h1>
+        <p>Are you sure you want to delete the department history for "{{ history.department.department_name }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Yes, Delete</button>
+            <a href="{% url 'department_history_list' %}">
+                <button type="button" class="cancel-button">Cancel</button>
+            </a>
+        </form>
+    </div>
+</body>
+</html>

@@ -28,7 +28,12 @@ from Payroll.serializers import UserSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import JobTitle
+from .models import Department
+from .forms import DepartmentForm
+from .models import DepartmentHistory
+from .forms import DepartmentHistoryForm
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -989,3 +994,42 @@ def hr_signup(request):
     return render(request, 'hr_signup.html', {'job_titles': job_titles})
 
 
+
+def edit_department(request, id):
+    department = get_object_or_404(Department, id=id)
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            return redirect('department_list')
+    else:
+        form = DepartmentForm(instance=department)
+    return render(request, 'edit_department.html', {'form': form})
+
+def delete_department(request, id):
+    department = get_object_or_404(Department, id=id)
+    if request.method == 'POST':
+        department.delete()
+        return redirect('department_list')
+    return render(request, 'delete_department.html', {'department': department})
+
+
+
+
+def edit_department_history(request, id):
+    history = get_object_or_404(DepartmentHistory, id=id)
+    if request.method == 'POST':
+        form = DepartmentHistoryForm(request.POST, instance=history)
+        if form.is_valid():
+            form.save()
+            return redirect('department_history_list')
+    else:
+        form = DepartmentHistoryForm(instance=history)
+    return render(request, 'edit_department_history.html', {'form': form})
+
+def delete_department_history(request, id):
+    history = get_object_or_404(DepartmentHistory, id=id)
+    if request.method == 'POST':
+        history.delete()
+        return redirect('department_history_list')
+    return render(request, 'delete_department_history.html', {'history': history})

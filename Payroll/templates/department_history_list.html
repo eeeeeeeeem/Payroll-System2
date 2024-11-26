@@ -58,6 +58,44 @@
             border-radius: 5px;
             margin-bottom: 10px;
             background-color: #f2f2f2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons a {
+            text-decoration: none;
+        }
+
+        .edit-button, .delete-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color var(--animation-speed), transform var(--animation-speed);
+        }
+
+        .edit-button {
+            background-color: var(--green);
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            background-color: var(--red);
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #e53935;
         }
     </style>
 </head>
@@ -66,7 +104,17 @@
         <h1>Department History List</h1>
         <ul>
             {% for history in department_histories %}
-                <li>{{ history.department.department_name }} - {{ history.employee.first_name }} {{ history.employee.last_name }} ({{ history.start_date }} to {{ history.end_date }})</li>
+                <li>
+                    {{ history.department.department_name }} - {{ history.employee.first_name }} {{ history.employee.last_name }} ({{ history.start_date }} to {{ history.end_date }})
+                    <div class="action-buttons">
+                        <a href="{% url 'edit_department_history' history.id %}">
+                            <button class="edit-button">Edit</button>
+                        </a>
+                        <a href="{% url 'delete_department_history' history.id %}">
+                            <button class="delete-button">Delete</button>
+                        </a>
+                    </div>
+                </li>
             {% endfor %}
         </ul>
     </div>
