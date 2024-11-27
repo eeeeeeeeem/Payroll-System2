@@ -510,7 +510,6 @@ def salary_payment_create(request):
     return render(request, 'salary_payment_form.html', {'form': form})
 
 # List Salary Payments
-
 @hr_required
 def salary_payment_list(request):
     user = get_user_from_token(request)
@@ -519,6 +518,17 @@ def salary_payment_list(request):
         'salary_payments': salary_payments,
         'profile_picture': user.profile_picture.url if user.profile_picture else None
     })
+
+def salary_payment_update(request, pk):
+    payment = get_object_or_404(SalaryPayment, pk=pk)
+    if request.method == 'POST':
+        form = SalaryPaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()
+            return redirect('salary_payment_list')
+    else:
+        form = SalaryPaymentForm(instance=payment)
+    return render(request, 'salary_payment_update.html', {'form': form})
 
 # Delete Salary Payment
 def salary_payment_delete(request, pk):

@@ -8,7 +8,7 @@ from .views import RegisterView, register_form, LoginView, login_form, UserView,
     all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post, \
     job_title_register, job_title_create, add_job, create_department, \
     create_department_history, delete_account, pay_jobs, edit_department, delete_department, edit_department_history, \
-    delete_department_history, JobDeskView, JobApplicationView
+    delete_department_history, JobDeskView, JobApplicationView, salary_payment_update
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -42,6 +42,7 @@ urlpatterns = [
     path('salary_payments/', views.salary_payment_list, name='salary_payment_list'),
     path('salary-payments/create/', views.salary_payment_create, name='salary_payment_create'),
     path('salary-payments/delete/<int:pk>/', views.salary_payment_delete, name='salary_payment_delete'),
+    path('salary_payment/update/<int:pk>/', salary_payment_update, name='salary_payment_update'),
 
     path('create_department/', create_department, name='create_department'),
     path('create_department_history/', create_department_history, name='create_department_history'),

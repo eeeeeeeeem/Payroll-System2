@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Update Salary Payment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        :root {
+            --primary-color: #6e62e5;
+            --primary-light: #f0eeff;
+            --text-color: #333;
+            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="text"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9ff;
+            font-size: 14px;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(110, 98, 229, 0.3);
+        }
+        button {
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background-color: #4e46c3;
+            transform: translateY(-2px);
+        }
+        a {
+            margin-top: 15px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            display: inline-block;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+        a:hover {
+            color: #5a4c3b;
+            transform: translateY(-2px);
+        }
+    </style>
+    <script>
+        function validateForm() {
+            const form = document.getElementById('salary-payment-form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            for (let input of inputs) {
+                if (input.value.trim() === '') {
+                    alert('Please fill out all fields.');
+                    input.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Salary Payment</h1>
+        <form method="POST" id="salary-payment-form" onsubmit="return validateForm()">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Update</button>
+        </form>
+        <a href="{% url 'salary_payment_list' %}">Back to Payroll</a>
+    </div>
+</body>
+</html>
