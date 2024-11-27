@@ -1,13 +1,19 @@
 import os
 from calendar import monthrange
 from functools import wraps
+from django.views.generic import ListView
+
 from django.contrib import messages
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
+from django.db.models import Count
 from django.http import JsonResponse, FileResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.http import require_POST
 from rest_framework import status
 from rest_framework.decorators import action
@@ -21,9 +27,12 @@ from django.utils import timezone
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import SalaryPaymentForm, SalarySlipRequestForm
+
+from Payroll_System.wsgi import application
+from .forms import SalaryPaymentForm, SalarySlipRequestForm, JobPostingForm
 from Payroll.forms import PostForm, UserSettingsForm
-from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment, TimeRecord, SalarySlipRequest
+from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment, TimeRecord, SalarySlipRequest, \
+    JobPosting, JobApplication
 from Payroll.serializers import UserSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -32,8 +41,144 @@ from .models import Department
 from .forms import DepartmentForm
 from .models import DepartmentHistory
 from .forms import DepartmentHistoryForm
+from Payroll.forms import DepartmentForm, DepartmentHistoryForm
+from Payroll.models import Department, DepartmentHistory
+from django.urls import reverse
 import logging
 logger = logging.getLogger(__name__)
+
+
+def job_application(request, job_id):
+    job = get_object_or_404(JobPosting, id=job_id)
+
+    if request.method == 'POST':
+        cover_letter = request.POST.get('cover_letter')
+        resume = request.FILES.get('resume')
+
+        JobApplication.objects.create(
+            job=job,
+            applicant=request.user,
+            cover_letter=cover_letter,
+            resume=resume,
+            status='PENDING'
+        )
+
+        return redirect('dashboard')  # Redirect to jobs list after successful application
+
+    return render(request, 'job_application.html', {'job': job})
+
+
+@login_required
+def add_job_posting(request):
+    if not request.user.is_hr():
+        messages.error(request, "You don't have permission to post jobs.")
+        return redirect('job_desk')
+
+    if request.method == 'POST':
+        form = JobPostingForm(request.POST)
+        if form.is_valid():
+            try:
+                job = form.save(commit=False)
+                job.created_by = request.user
+                job.save()
+                messages.success(request, f'Job "{job.title}" has been posted successfully!')
+                return redirect('job_desk')
+            except Exception as e:
+                messages.error(request, f'Error creating job: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = JobPostingForm()
+
+    return render(request, 'add_job.html', {'form': form})
+
+
+def apply_job(request):
+    if request.method == 'POST':
+        job_id = request.POST.get('job_id')
+        cover_letter = request.POST.get('cover_letter')
+        resume = request.FILES.get('resume')
+
+        if not job_id:
+            return JsonResponse({'error': 'Job ID is required'}, status=400)
+        try:
+
+            job = get_object_or_404(JobPosting, id=job_id)
+
+            JobApplication.objects.create(
+                job=job,
+                applicant = request.user,
+                cover_letter=cover_letter,
+                resume=resume
+            )
+            return JsonResponse({'message': 'Application submitted successfully'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+class JobDeskView(LoginRequiredMixin, ListView):
+    model = JobPosting
+    template_name = 'job_deskkk.html'  # Make sure this template exists
+    context_object_name = 'jobs'
+
+    def get_queryset(self):
+        queryset = JobPosting.objects.filter(status='OPEN').select_related('department')
+
+        department = self.request.GET.get('department')
+        if department:
+            queryset = queryset.filter(department__id=department)
+
+        salary_min = self.request.GET.get('salary_min')
+        if salary_min:
+            queryset = queryset.filter(salary_min__gte=salary_min)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['departments'] = Department.objects.annotate(
+            job_count=Count('jobposting')
+        )
+
+        if self.request.user.is_authenticated:
+            context['user_applications'] = JobApplication.objects.filter(
+                applicant=self.request.user
+            ).values_list('job_id', flat=True)
+
+        return context
+
+
+class JobApplicationView(View):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+
+        job_id = request.POST.get('job_id')
+        if not job_id:
+            return JsonResponse({'error': 'Job ID is required'}, status=400)
+
+        try:
+            job = JobPosting.objects.get(id=job_id, status='OPEN')
+
+            if JobApplication.objects.filter(job=job, applicant=request.user).exists():
+                return JsonResponse({'error': 'You have already applied for this job'}, status=400)
+
+            application = JobApplication.objects.create(
+                job=job,
+                applicant=request.user,
+                cover_letter=request.POST.get('cover_letter', '')
+            )
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Application submitted successfully',
+                'application_id': application.id
+            })
+
+        except JobPosting.DoesNotExist:
+            return JsonResponse({'error': 'Job not found or closed'}, status=404)
 
 
 @login_required
@@ -941,8 +1086,6 @@ def add_salary(request):
 
     return redirect('dashboard')
 
-from Payroll.forms import DepartmentForm, DepartmentHistoryForm
-
 def create_department(request):
     user = get_user_from_token(request)
     if request.method == 'POST':
@@ -969,8 +1112,6 @@ def create_department_history(request):
         form = DepartmentHistoryForm()
     return render(request, 'create_department_history.html', {'form': form})
 
-from Payroll.models import Department, DepartmentHistory
-
 def department_list(request):
     departments = Department.objects.all()
     return render(request, 'department_list.html', {'departments': departments})
@@ -979,7 +1120,6 @@ def department_history_list(request):
     department_histories = DepartmentHistory.objects.all()
     return render(request, 'department_history_list.html', {'department_histories': department_histories})
 
-from django.urls import reverse
 
 def create_department(request):
     if request.method == 'POST':

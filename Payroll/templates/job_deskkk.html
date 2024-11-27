@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Job Desk - Manage Job Postings</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         :root {
             --primary-color: #6e62e5;
@@ -26,7 +27,6 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: var(--bg-gradient);
-            display: flex;
             color: var(--text-color);
             min-height: 100vh;
             overflow-x: hidden;
@@ -37,297 +37,444 @@
             margin: 2rem auto;
             padding: 2rem;
             background-color: #fff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
         }
 
-        h1 {
-            color: var(--primary-color);
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a50c9;
+        }
+
+        .filters-card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .filters-card h3 {
             margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
         }
 
         .job-list {
-            list-style-type: none;
-            padding: 0;
+            display: grid;
+            gap: 2rem;
         }
 
         .job-item {
             background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
         }
 
         .job-item:hover {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
+            transform: translateY(-5px);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
 
         .job-title {
             font-size: 1.5rem;
             color: var(--primary-color);
-            margin-bottom: 0.5rem;
         }
 
-        .job-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
         }
 
-        .job-department, .job-salary {
-            font-size: 1rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-        }
-
-        .job-department::before, .job-salary::before {
-            content: '';
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            margin-right: 0.5rem;
-            background-size: contain;
-            background-repeat: no-repeat;
-        }
-
-        .job-department::before {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>');
-        }
-
-        .job-salary::before {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
-        }
-
-        .job-description, .job-responsibilities, .job-requirements {
-            margin-bottom: 1rem;
-            color: #555;
-        }
-
-        .job-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-apply {
+        .badge-success {
             background-color: var(--green);
             color: #fff;
         }
 
-        .btn-apply:hover {
-            background-color: #45a049;
+        .job-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
-        .btn-toggle {
-            background-color: var(--primary-color);
-            color: #fff;
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .btn-toggle:hover {
-            background-color: #5753c9;
+        .job-description {
+            margin-bottom: 1rem;
         }
 
-        .additional-info {
-            display: none;
+        .job-details {
             margin-top: 1rem;
-            padding: 1rem;
-            background-color: var(--primary-light);
-            border-radius: 4px;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .job-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
+        .job-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
         }
-                a.btn {
-            text-decoration: none;
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: #fff;
-            }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .job-item, .filters-card {
+            animation: fadeIn 0.5s ease-out;
+        }
         
-        a.btn:hover {
-            background-color: #5753c9;
-        }
+        .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    width: 100%;
+    max-width: 500px;
+    margin: 1.75rem auto;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    border-radius: 0.3rem;
+    padding: 1rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 1rem 0;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Job Desk</h1>
-        <p>Manage job postings and applications here.</p>
-        <ul class="job-list">
-            <li class="job-item">
-                <h2 class="job-title">Software Engineer</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Engineering</p>
-                    <p class="job-salary">Salary: $80,000 - $120,000</p>
-                </div>
-                <p class="job-description">We are seeking a talented Software Engineer to join our dynamic team. The ideal candidate will have strong problem-solving skills and experience in developing scalable web applications.</p>
-                <p class="job-responsibilities">Key Responsibilities: Develop and maintain web applications, collaborate with cross-functional teams, write clean and efficient code.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Computer Science, 3+ years of experience in software development, proficiency in JavaScript and Python.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. We also provide opportunities for professional development and career growth within our organization.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-            <li class="job-item">
-                <h2 class="job-title">Data Scientist</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Data Science</p>
-                    <p class="job-salary">Salary: $90,000 - $130,000</p>
-                </div>
-                <p class="job-description">We are looking for a Data Scientist to analyze large amounts of raw information to find patterns that will help improve our company.</p>
-                <p class="job-responsibilities">Key Responsibilities: Analyze large amounts of information to discover trends and patterns, build predictive models and machine-learning algorithms.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Data Science, 2+ years of experience in data analysis, proficiency in R and Python.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to work on cutting-edge projects and contribute to data-driven decision-making processes.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-            <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-             <li class="job-item">
-                <h2 class="job-title">Product Manager</h2>
-                <div class="job-meta">
-                    <p class="job-department">Department: Product Management</p>
-                    <p class="job-salary">Salary: $100,000 - $150,000</p>
-                </div>
-                <p class="job-description">We are seeking a Product Manager to lead the development and launch of new products.</p>
-                <p class="job-responsibilities">Key Responsibilities: Define product vision, strategy, and roadmap, gather and prioritize product and customer requirements.</p>
-                <p class="job-requirements">Requirements: Bachelor's degree in Business or related field, 5+ years of experience in product management, strong leadership skills.</p>
-                <div class="additional-info">
-                    <p>Additional Information: This position offers a comprehensive benefits package, including health insurance, 401(k), and paid time off. You'll have the opportunity to shape the direction of our products and work closely with cross-functional teams to bring innovative solutions to market.</p>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-apply">Apply Now</button>
-                    <button class="btn btn-toggle">Show More</button>
-                </div>
-            </li>
-        </ul>
+{% block content %}
+<div class="container">
+    <!-- Add Job Button for HR -->
+    {% if user.is_hr %}
+    <div class="header-actions">
+        <a href="{% url 'add_job_posting' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Post New Job
+        </a>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleButtons = document.querySelectorAll('.btn-toggle');
-            const applyButtons = document.querySelectorAll('.btn-apply');
+    {% endif %}
 
-            toggleButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const additionalInfo = this.closest('.job-item').querySelector('.additional-info');
-                    if (additionalInfo.style.display === 'none' || additionalInfo.style.display === '') {
-                        additionalInfo.style.display = 'block';
-                        this.textContent = 'Show Less';
-                        this.setAttribute('aria-expanded', 'true');
-                    } else {
-                        additionalInfo.style.display = 'none';
-                        this.textContent = 'Show More';
-                        this.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            });
+    <div class="filters-card">
+        <h3>Search Jobs</h3>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="departmentFilter">Department</label>
+                <select id="departmentFilter" class="form-control">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                        <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"s" %}selected{% endif %}>
+                            {{ dept.department_name }} ({{ dept.job_count }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            applyButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const jobTitle = this.closest('.job-item').querySelector('.job-title').textContent;
-                    alert('Application process initiated for ' + jobTitle);
-                });
-            });
+            <div class="filter-group">
+                <label for="salaryFilter">Minimum Salary</label>
+                <input type="number" id="salaryFilter" class="form-control"
+                       placeholder="Enter minimum salary"
+                       value="{{ request.GET.salary_min }}">
+            </div>
+
+            <div class="filter-group">
+                <button id="applyFilters" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Listings -->
+    <div class="job-list">
+        {% for job in jobs %}
+        <div class="job-item">
+            <div class="job-header">
+                <h2 class="job-title">{{ job.title }}</h2>
+                {% if job.id in user_applications %}
+                    <span class="badge badge-success">Applied</span>
+                {% endif %}
+            </div>
+
+            <div class="job-meta">
+                <div class="meta-item">
+                    <i class="fas fa-building"></i>
+                    <span>{{ job.department.department_name }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-money-bill"></i>
+                    <span>${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Deadline: {{ job.deadline|date:"F d, Y" }}</span>
+                </div>
+            </div>
+
+            <div class="job-description">
+                <h3>Description</h3>
+                <p>{{ job.description }}</p>
+            </div>
+
+            <div class="job-details" style="display: none;">
+                <div class="responsibilities">
+                    <h3>Responsibilities</h3>
+                    {{ job.responsibilities|linebreaks }}
+                </div>
+
+                <div class="requirements">
+                    <h3>Requirements</h3>
+                    {{ job.requirements|linebreaks }}
+                </div>
+            </div>
+
+            {% if user.role == 'EMPLOYEE' %}
+            <div class="job-actions">
+                {% if job.id in user_applications %}
+                    <button class="btn btn-secondary" disabled>
+                        <i class="fas fa-check"></i> Applied
+                    </button>
+                {% else %}
+                      <a href="{% url 'job_application' job.id %}" class="btn btn-primary">
+                         <i class="fas fa-paper-plane"></i> Apply Now
+                      </a>
+                {% endif %}
+                <button class="btn btn-info toggle-details">
+                    Show More <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="no-jobs">
+            <i class="fas fa-search"></i>
+            <h3>No jobs found</h3>
+            <p>Try adjusting your search filters</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+    
+<div class="modal" id="applicationModal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalJobTitle"></h5>
+                <button type="button" class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="applicationForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="job_id" id="modalJobId">
+
+                    <div class="mb-3">
+                        <label for="coverLetter" class="form-label">Cover Letter</label>
+                        <textarea name="cover_letter" id="coverLetter" class="form-control" required
+                                  placeholder="Tell us why you're the perfect fit for this position..." rows="5"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="resume" class="form-label">Resume (PDF only)</label>
+                        <input type="file" name="resume" id="resume" class="form-control" accept=".pdf" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script>
+function showModal(jobId, jobTitle) {
+    const modal = document.getElementById('applicationModal');
+    document.getElementById('modalJobId').value = jobId;
+    document.getElementById('modalJobTitle').textContent = `Apply for ${jobTitle}`;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+}
+
+function closeModal() {
+    const modal = document.getElementById('applicationModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle job details
+    document.querySelectorAll('.toggle-details').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const details = this.closest('.job-item').querySelector('.job-details');
+            const isVisible = details.style.display === 'block';
+            details.style.display = isVisible ? 'none' : 'block';
+            this.innerHTML = isVisible ? 'Show More <i class="fas fa-chevron-down"></i>' : 'Show Less <i class="fas fa-chevron-up"></i>';
         });
-    </script>
+    });
+
+    // Apply for job
+    document.querySelectorAll('.apply-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const jobId = this.dataset.jobId;
+            const jobTitle = this.dataset.jobTitle;
+            showModal(jobId, jobTitle);
+        });
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('applicationModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Handle application submission
+    document.getElementById('applicationForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch("{% url 'apply_job' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                closeModal();
+                alert('Application submitted successfully!');
+                location.reload();
+            } else {
+                alert(data.error || 'Error submitting application');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting application');
+        }
+    });
+
+    // Handle filters
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        const department = document.getElementById('departmentFilter').value;
+        const salary = document.getElementById('salaryFilter').value;
+        
+        const params = new URLSearchParams(window.location.search); 
+        if (department) params.set('department', department);
+        if (salary) params.set('salary_min', salary);
+        
+        window.location.search = params.toString();
+    });
+});
+</script>
 </body>
 </html>

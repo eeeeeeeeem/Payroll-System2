@@ -306,3 +306,50 @@ class SalarySlipRequest(models.Model):
 
     def __str__(self):
         return f"Salary Slip Request - {self.employee.get_full_name()} - {self.month.strftime('%B %Y')}"
+
+class JobPosting(models.Model):
+    STATUS_CHOICES = (
+        ('OPEN', 'Open'),
+        ('CLOSED', 'Closed'),
+        ('DRAFT', 'Draft')
+    )
+
+    title = models.CharField(max_length=255)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    salary_min = models.DecimalField(max_digits=10, decimal_places=2)
+    salary_max = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField()
+    responsibilities = models.TextField()
+    additional_info = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_jobs')
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT')
+    deadline = models.DateField()
+
+    def __str__(self):
+        return self.title
+
+class JobApplication(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('REVIEWED', 'Reviewed'),
+        ('SHORTLISTED', 'Shortlisted'),
+        ('REJECTED', 'Rejected'),
+        ('ACCEPTED', 'Accepted'),
+    )
+
+    job = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name='applications')
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='job_applications')
+    applied_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    resume = models.FileField(upload_to='resumes/', null=True, blank=True)
+    cover_letter = models.TextField(blank=True, null=True)
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='reviewed_applications', null=True, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['job', 'applicant']
+
+    def __str__(self):
+        return f"{self.applicant.get_full_name()} - {self.job.title}"

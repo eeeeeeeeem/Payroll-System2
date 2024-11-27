@@ -1,7 +1,7 @@
 from datetime import date
 
 from django import forms
-from Payroll.models import User, Post, JobTitle, EmploymentTerms, SalaryPayment, SalarySlipRequest
+from Payroll.models import User, Post, JobTitle, EmploymentTerms, SalaryPayment, SalarySlipRequest, JobPosting
 
 
 class UserSettingsForm(forms.ModelForm):
@@ -227,4 +227,69 @@ class SalarySlipRequestForm(forms.ModelForm):
             (year, str(year)) for year in range(current_year - 2, current_year + 1)
         ]
 
+class JobPostingForm(forms.ModelForm):
+    class Meta:
+        model = JobPosting
+        fields = [
+            'title',
+            'department',
+            'salary_min',
+            'salary_max',
+            'description',
+            'responsibilities',
+            'additional_info',
+            'status',
+            'deadline'
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter job title'
+            }),
+            'department': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'salary_min': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Minimum salary',
+                'step': '0.01'
+            }),
+            'salary_max': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Maximum salary',
+                'step': '0.01'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Job description'
+            }),
+            'responsibilities': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Job responsibilities'
+            }),
+            'additional_info': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Additional information (optional)'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'deadline': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            })
+        }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        salary_min = cleaned_data.get('salary_min')
+        salary_max = cleaned_data.get('salary_max')
+
+        if salary_min and salary_max and salary_min > salary_max:
+            raise forms.ValidationError(
+                "Minimum salary cannot be greater than maximum salary."
+            )
+        return cleaned_data

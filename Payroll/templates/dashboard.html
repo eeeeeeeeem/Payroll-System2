@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Enhanced Payroll Management Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
@@ -659,7 +660,7 @@
             <i class="fas fa-tachometer-alt"></i> Dashboard
             <i class="fas fa-chevron-right arrow"></i>
         </div>
-        <div class="menu-item" onclick="loadContent('add_job')">
+        <div class="menu-item" onclick="loadContent('jobs')">
             <i class="fas fa-briefcase"></i> Job Desk
             <i class="fas fa-chevron-right arrow"></i>
         </div>
@@ -692,7 +693,7 @@
 
         {% if user.role == 'EMPLOYEE' %}
         <div class="menu-item" onclick="window.location.href='{% url 'request_salary_slip' %}'">
-            <i class="fas fa-user-cog"></i> Request Salary Slip
+            <i class="fas fa-user-cog"></i> Request Slip
             <i class="fas fa-chevron-right arrow"></i>
         </div>
         {% endif %}

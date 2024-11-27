@@ -7,7 +7,8 @@ from django.urls import path
 from .views import RegisterView, register_form, LoginView, login_form, UserView, LogoutView, job_desk, employees, \
     all_employee, appointment, payroll, settings, send_email, settings_user, posting_user, create_post, \
     job_title_register, job_title_create, add_job, create_department, \
-    create_department_history, delete_account, pay_jobs, edit_department, delete_department , edit_department_history, delete_department_history
+    create_department_history, delete_account, pay_jobs, edit_department, delete_department, edit_department_history, \
+    delete_department_history, JobDeskView, JobApplicationView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -59,4 +60,11 @@ urlpatterns = [
     path('department/delete/<int:id>/', delete_department, name='delete_department'),
     path('department_history/edit/<int:id>/', edit_department_history, name='edit_department_history'),
     path('department_history/delete/<int:id>/', delete_department_history, name='delete_department_history'),
+
+    path('jobs/', JobDeskView.as_view(), name='jobs'),
+    path('api/job-application/', JobApplicationView.as_view(), name='job_application'),
+    path('apply-job/', views.apply_job, name='apply_job'),
+    path('add-job/', views.add_job_posting, name='add_job_posting'),
+    path('jobs/<int:job_id>/apply/', views.job_application, name='job_application'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
