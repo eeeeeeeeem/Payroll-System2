@@ -33,7 +33,6 @@ from .forms import DepartmentForm
 from .models import DepartmentHistory
 from .forms import DepartmentHistoryForm
 import logging
-
 logger = logging.getLogger(__name__)
 
 
@@ -493,6 +492,86 @@ def calculate_age(born):
 
 
 class UserView(APIView):
+    def get_dashboard_stats(self, user):
+        current_date = timezone.now().date()
+        thirty_days_ago = current_date - datetime.timedelta(days=30)
+
+        try:
+            # Total active employees
+            total_employees = User.objects.filter(
+                is_active=True,
+                role='EMPLOYEE'
+            ).count()
+
+            # Recent employment terms
+            recent_job_views = EmploymentTerms.objects.filter(
+                salary_start_date__gte=thirty_days_ago
+            ).count()
+
+            # Recently joined employees
+            recent_joins = User.objects.filter(
+                employement_start__gte=thirty_days_ago
+            ).count()
+
+            # Recently resigned employees
+            resigned_employees = User.objects.filter(
+                employement_end__gte=thirty_days_ago,
+                employement_end__lte=current_date
+            ).count()
+
+            # Previous period calculations
+            previous_period = current_date - datetime.timedelta(days=60)
+
+            prev_total = User.objects.filter(
+                is_active=True,
+                role='EMPLOYEE',
+                employement_start__lte=thirty_days_ago
+            ).count()
+
+            prev_views = EmploymentTerms.objects.filter(
+                salary_start_date__range=[previous_period, thirty_days_ago]
+            ).count()
+
+            prev_joins = User.objects.filter(
+                employement_start__range=[previous_period, thirty_days_ago]
+            ).count()
+
+            prev_resigned = User.objects.filter(
+                employement_end__range=[previous_period, thirty_days_ago]
+            ).count()
+
+            def calculate_percentage_change(current, previous):
+                if previous == 0:
+                    return 100 if current > 0 else 0
+                return ((current - previous) / previous) * 100
+
+            return {
+                'total_employees': {
+                    'value': total_employees,
+                    'change': round(calculate_percentage_change(total_employees, prev_total), 1)
+                },
+                'job_views': {
+                    'value': recent_job_views,
+                    'change': round(calculate_percentage_change(recent_job_views, prev_views), 1)
+                },
+                'jobs_applied': {
+                    'value': recent_joins,
+                    'change': round(calculate_percentage_change(recent_joins, prev_joins), 1)
+                },
+                'resigned_employees': {
+                    'value': resigned_employees,
+                    'change': round(calculate_percentage_change(resigned_employees, prev_resigned), 1)
+                }
+            }
+        except Exception as e:
+            print(f"Error calculating dashboard stats: {e}")
+            return {
+                'total_employees': {'value': 0, 'change': 0},
+                'job_views': {'value': 0, 'change': 0},
+                'jobs_applied': {'value': 0, 'change': 0},
+                'resigned_employees': {'value': 0, 'change': 0}
+            }
+
     def calculate_month_stats(self, user):
         now = timezone.now()
         first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -500,7 +579,6 @@ class UserView(APIView):
         last_date = now.replace(day=last_day)
 
         try:
-            # Get all time records for current month
             time_records = TimeRecord.objects.filter(
                 user=user,
                 date__gte=first_day.date(),
@@ -577,6 +655,7 @@ class UserView(APIView):
         serializer = UserSerializer(user)
 
         month_stats = self.calculate_month_stats(user)
+        dashboard_stats = self.get_dashboard_stats(user)
 
         users = User.objects.all()
         user_data = [
@@ -598,7 +677,8 @@ class UserView(APIView):
             'users': user_data,
             'last_login': user.last_login,
             'punch_out': user.punch_out_time,
-            'month_stats': month_stats
+            'month_stats': month_stats,
+            'dashboard_stats': dashboard_stats
         })
 
     def post(self, request):
