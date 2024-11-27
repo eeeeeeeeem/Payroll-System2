@@ -15,7 +15,6 @@ class RoleMiddleware:
             'salary_payment_list',
             'department_create',
             'employment_terms_register',
-            'job_title_create',
         ]
 
         try:

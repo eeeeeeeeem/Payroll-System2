@@ -1,6 +1,7 @@
 from tkinter.font import names
 
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
 
 from . import views
 from django.urls import path

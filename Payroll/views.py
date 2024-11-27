@@ -139,7 +139,7 @@ def add_job_posting(request):
                 job.created_by = request.user
                 job.save()
                 messages.success(request, f'Job "{job.title}" has been posted successfully!')
-                return redirect('job_desk')
+                return redirect('dashboard')
             except Exception as e:
                 messages.error(request, f'Error creating job: {str(e)}')
         else:

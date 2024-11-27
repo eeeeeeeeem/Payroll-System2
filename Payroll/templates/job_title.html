@@ -85,7 +85,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="title">Title:</label>
-                <input type="text" id="title" name="title" required 
+                <input type="text" id="title" name="title" required
                        pattern="[A-Za-z0-9\s]{3,50}" 
                        title="Title must be between 3 and 50 characters, and can only contain letters, numbers and spaces">
                 <div class="error-message" id="titleError"></div>
