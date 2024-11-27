@@ -66,5 +66,6 @@ urlpatterns = [
     path('apply-job/', views.apply_job, name='apply_job'),
     path('add-job/', views.add_job_posting, name='add_job_posting'),
     path('jobs/<int:job_id>/apply/', views.job_application, name='job_application'),
+    path('application/<int:application_id>/review/', views.review_application, name='review_application'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

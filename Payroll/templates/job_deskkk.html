@@ -287,72 +287,100 @@
 
     <!-- Job Listings -->
     <div class="job-list">
-        {% for job in jobs %}
-        <div class="job-item">
-            <div class="job-header">
-                <h2 class="job-title">{{ job.title }}</h2>
-                {% if job.id in user_applications %}
-                    <span class="badge badge-success">Applied</span>
-                {% endif %}
+    {% for job in jobs %}
+    <div class="job-item">
+        <div class="job-header">
+            <h2 class="job-title">{{ job.title }}</h2>
+            {% if user.role == 'EMPLOYEE' and job.id in user_applications %}
+                <span class="badge badge-success">Applied</span>
+            {% endif %}
+        </div>
+
+        <div class="job-meta">
+            <div class="meta-item">
+                <i class="fas fa-building"></i>
+                <span>{{ job.department.department_name }}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-money-bill"></i>
+                <span>${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <span>Deadline: {{ job.deadline|date:"F d, Y" }}</span>
+            </div>
+        </div>
+
+        <div class="job-description">
+            <h3>Description</h3>
+            <p>{{ job.description }}</p>
+        </div>
+
+        <div class="job-details" style="display: none;">
+            <div class="responsibilities">
+                <h3>Responsibilities</h3>
+                {{ job.responsibilities|linebreaks }}
             </div>
 
-            <div class="job-meta">
-                <div class="meta-item">
-                    <i class="fas fa-building"></i>
-                    <span>{{ job.department.department_name }}</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-money-bill"></i>
-                    <span>${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-calendar"></i>
-                    <span>Deadline: {{ job.deadline|date:"F d, Y" }}</span>
-                </div>
+            <div class="requirements">
+                <h3>Requirements</h3>
+                {{ job.requirements|linebreaks }}
             </div>
+        </div>
 
-            <div class="job-description">
-                <h3>Description</h3>
-                <p>{{ job.description }}</p>
+        {% if user.is_hr %}
+            <div class="job-applications">
+                <h3>Applications</h3>
+                {% with applications=job.applications.all %}
+                    {% if applications %}
+                        <div class="applicants-list">
+                            {% for application in applications %}
+                                <div class="applicant-item">
+                                    <span class="applicant-name">
+                                        <i class="fas fa-user"></i> 
+                                        {{ application.applicant.get_full_name }}
+                                    </span>
+                                    <span class="application-date">
+                                        Applied on: {{ application.applied_at|date:"M d, Y" }}
+                                    </span>
+                                    <span class="application-status {{ application.status|lower }}">
+                                        Status: {{ application.status }}
+                                    </span>
+                                    <a href="{% url 'review_application' application.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> Review Application
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="no-applications">No applications yet</p>
+                    {% endif %}
+                {% endwith %}
             </div>
-
-            <div class="job-details" style="display: none;">
-                <div class="responsibilities">
-                    <h3>Responsibilities</h3>
-                    {{ job.responsibilities|linebreaks }}
-                </div>
-
-                <div class="requirements">
-                    <h3>Requirements</h3>
-                    {{ job.requirements|linebreaks }}
-                </div>
-            </div>
-
-            {% if user.role == 'EMPLOYEE' %}
+        {% else %}
             <div class="job-actions">
                 {% if job.id in user_applications %}
                     <button class="btn btn-secondary" disabled>
                         <i class="fas fa-check"></i> Applied
                     </button>
                 {% else %}
-                      <a href="{% url 'job_application' job.id %}" class="btn btn-primary">
-                         <i class="fas fa-paper-plane"></i> Apply Now
-                      </a>
+                    <a href="{% url 'job_application' job.id %}" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Apply Now
+                    </a>
                 {% endif %}
                 <button class="btn btn-info toggle-details">
                     Show More <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
-            {% endif %}
-        </div>
-        {% empty %}
-        <div class="no-jobs">
-            <i class="fas fa-search"></i>
-            <h3>No jobs found</h3>
-            <p>Try adjusting your search filters</p>
-        </div>
-        {% endfor %}
+        {% endif %}
     </div>
+    {% empty %}
+    <div class="no-jobs">
+        <i class="fas fa-search"></i>
+        <h3>No jobs found</h3>
+        <p>Try adjusting your search filters</p>
+    </div>
+    {% endfor %}
 </div>
     
 <div class="modal" id="applicationModal" style="display: none;">

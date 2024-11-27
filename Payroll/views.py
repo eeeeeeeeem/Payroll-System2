@@ -14,7 +14,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
@@ -46,6 +46,63 @@ from Payroll.models import Department, DepartmentHistory
 from django.urls import reverse
 import logging
 logger = logging.getLogger(__name__)
+
+
+@login_required
+def applications_to_review(request):
+    if not request.user.is_hr():
+        messages.error(request, "You don't have permission to review applications.")
+        return redirect('job_desk')
+
+    applications = JobApplication.objects.select_related(
+        'job',
+        'applicant',
+        'reviewed_by'
+    ).order_by('-applied_at')
+
+    # Filter by status if provided
+    status = request.GET.get('status')
+    if status:
+        applications = applications.filter(status=status)
+
+    return render(request, 'review_applications.html', {
+        'applications': applications,
+        'status_choices': JobApplication.STATUS_CHOICES
+    })
+
+
+@login_required
+def review_application(request, application_id):
+    application = get_object_or_404(JobApplication, id=application_id)
+
+    if not request.user.is_hr:
+        messages.error(request, "You don't have permission to review applications.")
+        return redirect('job_list')
+
+    if request.method == 'POST':
+        # Update application status and notes
+        status = request.POST.get('status')
+        notes = request.POST.get('notes', '')
+
+        if status in dict(JobApplication.STATUS_CHOICES):
+            application.status = status
+            application.notes = notes
+            application.reviewed_by = request.user
+            application.reviewed_at = timezone.now()
+            application.save()
+
+            messages.success(request, 'Application review saved successfully.')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid status selected.')
+
+    # Prepare context for template
+    context = {
+        'application': application,
+        'status_choices': JobApplication.STATUS_CHOICES,
+    }
+
+    return render(request, 'review_applications.html', context)
 
 
 def job_application(request, job_id):
@@ -120,11 +177,18 @@ def apply_job(request):
 
 class JobDeskView(LoginRequiredMixin, ListView):
     model = JobPosting
-    template_name = 'job_deskkk.html'  # Make sure this template exists
+    template_name = 'job_deskkk.html'
     context_object_name = 'jobs'
 
     def get_queryset(self):
         queryset = JobPosting.objects.filter(status='OPEN').select_related('department')
+
+        # Add prefetch_related for HR users
+        if self.request.user.is_hr:
+            queryset = queryset.prefetch_related(
+                'applications',
+                'applications__applicant'
+            )
 
         department = self.request.GET.get('department')
         if department:
