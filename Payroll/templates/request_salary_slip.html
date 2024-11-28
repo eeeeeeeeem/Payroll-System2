@@ -7,140 +7,196 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Request Salary Slip</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #5cb85c;
-            --background-color: #f8f9fa;
-            --text-color: #333;
-            --border-color: #dee2e6;
-        }
+   <style>
+    :root {
+        --primary-color: #6e62e5;
+        --secondary-color: #807abb;
+        --background-color: #f5f2f6;
+        --text-color: #333;
+        --border-color: #DCCFFF;
+    }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--background-color);
-            margin: 0;
-            padding: 0;
-        }
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--background-color);
+        margin: 0;
+        padding: 0;
+    }
 
+    .header {
+        width: 100%;
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        background: white;
+        color: var(--primary-color);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--box-shadow);
+        z-index: 1000; 
+    }
+
+    .header .logo {
+        display: flex;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .header .logo img {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 5rem auto 2rem; 
+        padding: 2rem;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .messages {
+        margin-bottom: 2rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        color: #721c24;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(110, 98, 229, 0.25);
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background-color: #5a54d4;
+    }
+
+    .btn-secondary {
+        background-color: var(--secondary-color);
+        color: #fff;
+        margin-left: 1rem;
+    }
+
+    .btn-secondary:hover {
+        background-color: #6a64bb;
+    }
+
+    @media (max-width: 768px) {
         .container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2rem;
-        }
-
-        .messages {
-            margin-bottom: 2rem;
-        }
-
-        .alert {
             padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .alert-success {
-            color: #155724;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background-color: #3a7bc8;
         }
 
         .btn-secondary {
-            background-color: var(--secondary-color);
-            color: #fff;
-            margin-left: 1rem;
+            margin-left: 0;
+            margin-top: 1rem;
+            width: 100%;
         }
 
-        .btn-secondary:hover {
-            background-color: #4cae4c;
+        .btn-primary {
+            width: 100%;
         }
+    }
+       body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle, #9d97e1, #b5afef, #cac8ef, #f5f5fa);
+    background-size: 300% 300%;
+    animation: gradientShift 8s infinite ease-in-out;
+}
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .btn-secondary {
-                margin-left: 0;
-                margin-top: 1rem;
-                width: 100%;
-            }
-
-            .btn-primary {
-                width: 100%;
-            }
-        }
-    </style>
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+</style>
 </head>
 <body>
+{% load static %}
+    <header class="header">
+        <a class="logo" onclick="window.location.href='{% url 'dashboard' %}'">
+            <img src="{% static 'images/logopayroll.png' %}" alt="Payroll Management Logo">
+            Payroll Management
+        </a>
+    </header>
     <div class="container">
         <h2><i class="fas fa-file-invoice-dollar"></i> Request Salary Slip</h2>
 

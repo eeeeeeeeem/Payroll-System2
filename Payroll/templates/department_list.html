@@ -9,7 +9,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-color: #4e73df;
+            --primary-color: #6e62e5;
             --primary-light: #dce7fc;
             --text-color: #4f4f4f;
             --bg-color: #f8f9fc;
@@ -38,13 +38,17 @@
 
         .header {
             width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 15px 30px;
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            background: white;
+            color: var(--primary-color);
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: var(--box-shadow);
+            z-index: 1000; 
         }
 
         .logo {
@@ -52,7 +56,7 @@
             align-items: center;
             font-size: 1.5rem;
             font-weight: 700;
-            color: white;
+            color: #6464da;
             text-decoration: none;
             cursor: pointer;
         }
@@ -166,12 +170,12 @@
         }
 
         .edit-button {
-            background-color: #4caf50;
+            background-color: #696ebf;
             color: white;
         }
 
         .edit-button:hover {
-            background-color: #45a049;
+            background-color: #adadea;
         }
 
         .delete-button {
@@ -181,6 +185,28 @@
 
         .delete-button:hover {
             background-color: #e53935;
+        }
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>

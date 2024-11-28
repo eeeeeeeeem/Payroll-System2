@@ -10,7 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-color: #4e73df;
+            --primary-color: #6e62e5;
             --primary-light: #dce7fc;
             --text-color: #4f4f4f;
             --bg-color: #f8f9fc;
@@ -87,6 +87,25 @@
             background-color: var(--primary-light);
             color: var(--primary-color);
             transform: translateY(-3px);
+        }
+         body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>

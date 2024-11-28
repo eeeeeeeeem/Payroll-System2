@@ -11,7 +11,7 @@
             --primary-light: #f0eeff;
             --text-color: #333;
             --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --green: #4caf50;
+            --green: #6e62e5;
             --red: #f44336;
             --animation-speed: 0.3s;
         }
@@ -161,6 +161,25 @@
             border-radius: 5px;
             cursor: pointer;
         }
+           body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle, #9d97e1, #b5afef, #cac8ef, #f5f5fa);
+    background-size: 300% 300%;
+    animation: gradientShift 8s infinite ease-in-out;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
     </style>
 </head>
 <body>

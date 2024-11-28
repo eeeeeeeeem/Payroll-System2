@@ -31,6 +31,7 @@
             align-items: center;
             height: 100vh;
         }
+        
         .container {
             background-color: #fff;
             border-radius: 10px;
@@ -104,6 +105,25 @@
             color: var(--text-color);
             font-size: 14px;
         }
+           body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle, #9d97e1, #b5afef, #cac8ef, #f5f5fa);
+    background-size: 300% 300%;
+    animation: gradientShift 8s infinite ease-in-out;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
     </style>
 </head>
 <body>

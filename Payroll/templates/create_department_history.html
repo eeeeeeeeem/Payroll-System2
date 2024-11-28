@@ -13,7 +13,7 @@
             --primary-light: #f0eeff;
             --text-color: #333;
             --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --green: #4caf50;
+            --green: #6e62e5;
             --red: #f44336;
             --animation-speed: 0.3s;
         }
@@ -82,17 +82,18 @@
         }
 
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
+            width: 100%;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            z-index: 10;
+            background: white;
+            color: var(--primary-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
         }
 
         .logo {
@@ -100,7 +101,7 @@
             align-items: center;
             font-size: 20px;
             font-weight: 600;
-            color: white;
+            color: #6e62e5;
             text-decoration: none;
         }
 
@@ -126,6 +127,29 @@
         .profile-info span {
             font-size: 14px;
             font-weight: 500;
+        }
+
+         body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>

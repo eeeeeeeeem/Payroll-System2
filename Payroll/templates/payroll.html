@@ -107,6 +107,25 @@
         .add-payment-btn:hover {
             background-color: #4e46c3;
         }
+            body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle, #9d97e1, #b5afef, #cac8ef, #f5f5fa);
+    background-size: 300% 300%;
+    animation: gradientShift 8s infinite ease-in-out;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
     </style>
 </head>
 <body>
@@ -147,9 +166,9 @@
             <td>{{ payment.total_payment }}</td>  
             <td>{{ payment.payment_date }}</td>
             <td class="actions">
-    <a href="{% url 'salary_payment_update' payment.id %}">Edit</a>
-    <a href="{% url 'salary_payment_delete' payment.id %}">Delete</a>
-</td>
+                <a href="{% url 'salary_payment_update' payment.id %}">Edit</a>
+                <a href="{% url 'salary_payment_delete' payment.id %}" onclick="return confirm('Are you sure you want to delete this?');">Delete</a>
+            </td>
         </tr>
     {% empty %}
         <tr>

@@ -9,8 +9,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
         :root {
-            --primary-color: #3a7bd5;
-            --secondary-color: #00d2ff;
+            --primary-color: #6464da;
+            --secondary-color: #adadea;
             --text-color: #333;
             --border-radius: 12px;
             --transition: all 0.3s ease;
@@ -164,17 +164,32 @@
         }
 
         /* Animated background */
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         body {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-        }
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    margin: 0;
+    padding: 40px 20px;
+    background: linear-gradient(45deg, #9d97e1, #b5afef, #e7e7ec, #f5f5fa);
+    background-size: 200% 200%;
+    animation: gradientShift 8s infinite ease-in-out;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
 
         /* Smooth scrolling for the whole page */
         html {

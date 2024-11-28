@@ -6,149 +6,176 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Create Department</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-        :root {
-            --primary-color: #4e73df;
-            --primary-light: #dce7fc;
-            --secondary-color: #1cc88a;
-            --danger-color: #e74a3b;
-            --text-color: #4f4f4f;
-            --bg-color: #f8f9fc;
-            --card-bg: #ffffff;
-            --border-color: #ddd;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --radius: 8px;
-            --transition: 0.3s ease;
-        }
+    :root {
+        --primary-color: #6464da;
+        --primary-light: #dce7fc;
+        --secondary-color: #1cc88a;
+        --danger-color: #e74a3b;
+        --text-color: #4f4f4f;
+        --bg-color: #f8f9fc;
+        --card-bg: #ffffff;
+        --border-color: #ddd;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --radius: 8px;
+        --transition: 0.3s ease;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .header {
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--box-shadow);
+   .header {
+    width: 100%;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    background: white;
+    color: var(--primary-color);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--box-shadow);
+    z-index: 1000; 
+}
+
+    .header .logo {
+        display: flex;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .header .logo img {
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .profile-info {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+    .profile-info img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        border: 2px solid white;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 30px;
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--box-shadow);
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    label {
+        font-weight: 500;
+        font-size: 0.95rem;
+        color: var(--text-color);
+    }
+
+    input, select, textarea {
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        font-size: 0.95rem;
+        color: var(--text-color);
+        background-color: var(--bg-color);
+        outline: none;
+        transition: border-color var(--transition);
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 5px rgba(78, 115, 223, 0.3);
+    }
+
+    button {
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: background-color var(--transition), transform var(--transition);
+    }
+
+    button:hover {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        transform: translateY(-3px);
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            width: 90%;
+            padding: 20px;
         }
 
         .header .logo {
-            display: flex;
-            align-items: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .header .logo img {
-            height: 40px;
-            margin-right: 10px;
-        }
-
-        .profile-info {
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        .profile-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid white;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 30px;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 1.8rem;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        label {
-            font-weight: 500;
-            font-size: 0.95rem;
-            color: var(--text-color);
-        }
-
-        input, select, textarea {
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            font-size: 0.95rem;
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            outline: none;
-            transition: border-color var(--transition);
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 5px rgba(78, 115, 223, 0.3);
-        }
-
-        button {
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 600;
             font-size: 1rem;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: background-color var(--transition), transform var(--transition);
+        }
+    }
+
+   
+     body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
         }
 
-        button:hover {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-            transform: translateY(-3px);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                width: 90%;
-                padding: 20px;
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
             }
-
-            .header .logo {
-                font-size: 1rem;
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
             }
         }
     </style>

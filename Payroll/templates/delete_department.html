@@ -9,9 +9,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-        :root {
-            --primary-color: #4e73df;
+      :root {
+            --primary-color: #6464da;
             --primary-light: #dce7fc;
+            --secondary-color: #1cc88a;
+            --danger-color: #e74a3b;
             --text-color: #4f4f4f;
             --bg-color: #f8f9fc;
             --card-bg: #ffffff;
@@ -31,10 +33,12 @@
             font-family: 'Poppins', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
         }
 
         .container {
@@ -89,6 +93,28 @@
 
         .cancel-button:hover {
             background-color: #e53935;
+        }
+         body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>

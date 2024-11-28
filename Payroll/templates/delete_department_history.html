@@ -9,11 +9,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
         :root {
-            --primary-color: #6e62e5;
-            --primary-light: #f0eeff;
-            --text-color: #333;
-            --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --animation-speed: 0.3s;
+            --primary-color: #6464da;
+            --primary-light: #dce7fc;
+            --secondary-color: #b5afef;
+            --danger-color: #e74a3b;
+            --text-color: #4f4f4f;
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --transition: 0.3s ease;
         }
 
         * {
@@ -82,6 +88,29 @@
         .cancel-button:hover {
             background-color: #e53935;
         }
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
     </style>
 </head>
 <body>

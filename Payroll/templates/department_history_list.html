@@ -13,7 +13,7 @@
             --primary-light: #f0eeff;
             --text-color: #333;
             --bg-gradient: linear-gradient(135deg, #f6f8fd 0%, #e9eeff 100%);
-            --green: #4caf50;
+            --green: #6e62e5;
             --red: #f44336;
             --animation-speed: 0.3s;
         }
@@ -35,7 +35,7 @@
 
         .container {
             width: 80%;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -87,7 +87,7 @@
         }
 
         .edit-button:hover {
-            background-color: #45a049;
+            background-color: #adadea;
         }
 
         .delete-button {
@@ -97,6 +97,26 @@
 
         .delete-button:hover {
             background-color: #e53935;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(45deg, #6e62e5, #FFFFFF, #9595e6);
+            background-size: 200% 200%;
+            animation: gradientShift 8s infinite ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
     </style>
 </head>
