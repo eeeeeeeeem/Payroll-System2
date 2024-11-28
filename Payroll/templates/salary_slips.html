@@ -1,4 +1,17 @@
 {% block content %}
+<!-- Navigation and User Info Container -->
+<div class="nav-container" style="max-width: 1200px; margin: 20px auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+    <a href="{% url 'dashboard' %}" class="dashboard-btn">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+    </a>
+    <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <span class="username">{{ user.username }}</span>
+        <span class="datetime">{{ current_datetime|date:"F d, Y H:i" }} UTC</span>
+    </div>
+</div>
+
 <div class="container mt-4" style="max-width: 1200px; margin: auto; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
     <h2 style="color: #2c3e50; font-size: 3rem; text-align: center; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
         <span style="background: linear-gradient(45deg, #3498db, #2ecc71); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
@@ -69,6 +82,103 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
     }
+
+    .nav-container {
+        padding: 0 20px;
+    }
+
+    .dashboard-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 24px;
+        background: linear-gradient(45deg, #6a1b9a, #4a148c);
+        color: white;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(106, 27, 154, 0.2);
+        border: none;
+        cursor: pointer;
+    }
+
+    .dashboard-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(106, 27, 154, 0.3);
+        color: white;
+        text-decoration: none;
+        background: linear-gradient(45deg, #4a148c, #6a1b9a);
+    }
+
+    .dashboard-btn i {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+
+    .dashboard-btn span {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 8px;
+        border-radius: 20px;
+        margin-left: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-btn:hover span {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: linear-gradient(45deg, #6a1b9a, #4a148c);
+        border-radius: 50px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(106, 27, 154, 0.2);
+    }
+
+    .user-info i {
+        font-size: 20px;
+        margin-right: 10px;
+    }
+
+    .user-info .username {
+        font-weight: 500;
+        margin-right: 15px;
+        padding-right: 15px;
+        border-right: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .user-info .datetime {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        .nav-container {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dashboard-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .user-info {
+            flex-direction: column;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .user-info .username {
+            border-right: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            margin-right: 0;
+        }
+    }
 </style>
 {% endblock %}
-

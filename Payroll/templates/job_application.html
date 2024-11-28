@@ -6,22 +6,120 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Apply for {{ job.title }} - Job Desk</title>
     <style>
-        /* Keep your existing CSS styles */
-        /* Add these specific styles for the application form */
+        :root {
+            --primary-color: #6a1b9a;
+            --primary-dark: #4a148c;
+            --primary-light: #f3e5f5;
+            --accent-color: #2ecc71;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(106, 27, 154, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* User Info Bar */
+        .user-info-bar {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            padding: 15px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            box-shadow: var(--shadow);
+        }
+
+        .user-info-bar .user-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info-bar .user-icon {
+            font-size: 1.2rem;
+        }
+
+        .user-info-bar .datetime {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
         .application-container {
             max-width: 800px;
             margin: 2rem auto;
             padding: 2rem;
-            background-color: #fff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background-color: var(--white);
+            box-shadow: var(--shadow);
             border-radius: 16px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .job-summary {
-            background-color: var(--primary-light);
-            padding: 1.5rem;
+            background: linear-gradient(to right, var(--primary-light), #fff);
+            padding: 2rem;
             border-radius: 12px;
             margin-bottom: 2rem;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .job-title {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .job-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-dark);
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .meta-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .meta-item i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .job-description, .job-responsibilities, .additional-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .job-description h3, .job-responsibilities h3, .additional-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
         }
 
         .form-group {
@@ -30,61 +128,186 @@
 
         .form-label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
             font-weight: 500;
+            color: var(--text-dark);
         }
 
         .form-control {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
         }
 
         .form-actions {
             display: flex;
             justify-content: space-between;
             margin-top: 2rem;
+            gap: 1rem;
         }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(106, 27, 154, 0.2);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 27, 154, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+        }
+
+        @media (max-width: 768px) {
+            .application-container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+
+            .job-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .user-info-bar {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+        
+        .notification {
+    position: fixed;
+    top: 20px;
+    right: -100%;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(106, 27, 154, 0.3);
+    display: flex;
+    align-items: center;
+    transition: right 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1000;
+}
+
+.notification.show {
+    right: 20px;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification i {
+    font-size: 1.4rem;
+    color: var(--accent-color);
+}
+
+.notification span {
+    font-weight: 500;
+}
     </style>
 </head>
 <body>
+    <!-- User Info Bar -->
+    <div class="user-info-bar">
+        <div class="user-details">
+            <i class="fas fa-user-circle user-icon"></i>
+            <span>{{ user.username }}</span>
+        </div>
+        <div class="datetime">
+            <i class="far fa-clock"></i>
+            <span>{{ current_datetime|date:"F d, Y H:i" }} UTC</span>
+        </div>
+    </div>
+
     <div class="application-container">
         <div class="job-summary">
-    <h2 class="job-title">{{ job.title }}</h2>
-    <div class="job-meta">
-        <div class="meta-item">
-            <i class="fas fa-building"></i>
-            <span>{{ job.department.department_name }}</span>
-        </div>
-        <div class="meta-item">
-            <i class="fas fa-money-bill"></i>
-            <span>${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}</span>
-        </div>
-        <div class="meta-item">
-            <i class="fas fa-calendar"></i>
-            <span>Deadline: {{ job.deadline|date:"F d, Y" }}</span>
-        </div>
-    </div>
+            <h2 class="job-title">{{ job.title }}</h2>
+            <div class="job-meta">
+                <div class="meta-item">
+                    <i class="fas fa-building"></i>
+                    <span>{{ job.department.department_name }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-money-bill"></i>
+                    <span>${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Deadline: {{ job.deadline|date:"F d, Y" }}</span>
+                </div>
+            </div>
 
-    <div class="job-description">
-        <h3>Description</h3>
-        <p>{{ job.description }}</p>
-    </div>
+            <div class="job-description">
+                <h3>Description</h3>
+                <p>{{ job.description }}</p>
+            </div>
 
-    <div class="job-responsibilities">
-        <h3>Responsibilities</h3>
-        <p>{{ job.responsibilities }}</p>
-    </div>
+            <div class="job-responsibilities">
+                <h3>Responsibilities</h3>
+                <p>{{ job.responsibilities }}</p>
+            </div>
 
-    {% if job.additional_info %}
-    <div class="additional-info">
-        <h3>Additional Information</h3>
-        <p>{{ job.additional_info }}</p>
-    </div>
-    {% endif %}
-</div>
+            {% if job.additional_info %}
+            <div class="additional-info">
+                <h3>Additional Information</h3>
+                <p>{{ job.additional_info }}</p>
+            </div>
+            {% endif %}
+        </div>
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -110,35 +333,59 @@
             </div>
         </form>
     </div>
+    
+    <div id="notification" class="notification">
+    <div class="notification-content">
+        <i class="fas fa-check-circle"></i>
+        <span>Application submitted successfully!</span>
+    </div>
+    </div>
 
     <script>
-        document.querySelector('form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+       document.querySelector('form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
 
-            const formData = new FormData(this);
-
-            try {
-                const response = await fetch("{% url 'apply_job' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    alert('Application submitted successfully!');
-                    window.location.href = "{% url 'dashboard' %}";
-                } else {
-                    alert(data.error || 'Error submitting application');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error submitting application');
+    try {
+        const response = await fetch("{% url 'apply_job' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
         });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Show notification
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            // Redirect after delay
+            setTimeout(() => {
+                window.location.href = "{% url 'dashboard' %}";
+            }, 2000); // Redirects after 2 seconds
+        } else {
+            // Error notification
+            const notification = document.getElementById('notification');
+            notification.querySelector('i').className = 'fas fa-exclamation-circle';
+            notification.querySelector('i').style.color = '#e74c3c';
+            notification.querySelector('span').textContent = data.error || 'Error submitting application';
+            notification.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+            notification.classList.add('show');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        // Error notification
+        const notification = document.getElementById('notification');
+        notification.querySelector('i').className = 'fas fa-exclamation-circle';
+        notification.querySelector('i').style.color = '#e74c3c';
+        notification.querySelector('span').textContent = 'Error submitting application';
+        notification.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+        notification.classList.add('show');
+    }
+});
     </script>
 </body>
 </html>

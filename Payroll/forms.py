@@ -19,8 +19,6 @@ class UserSettingsForm(forms.ModelForm):
         widget=forms.DateInput(attrs={
             'type': 'date',
             'class': 'form-control',
-            'readonly': 'readonly',
-            'disabled': 'disabled'
         })
     )
     employement_end = forms.DateField(
@@ -28,8 +26,6 @@ class UserSettingsForm(forms.ModelForm):
         widget=forms.DateInput(attrs={
             'type': 'date',
             'class': 'form-control',
-            'readonly': 'readonly',
-            'disabled': 'disabled'
         })
     )
 
@@ -119,10 +115,10 @@ class UserSettingsForm(forms.ModelForm):
                 self.fields['salary_end_date'].widget.attrs['disabled'] = True
 
                 # Make employment start and end read-only
-                self.fields['employement_start'].widget.attrs['readonly'] = True
-                self.fields['employement_start'].widget.attrs['disabled'] = True
-                self.fields['employement_end'].widget.attrs['readonly'] = True
-                self.fields['employement_end'].widget.attrs['disabled'] = True
+                #self.fields['employement_start'].widget.attrs['readonly'] = True
+                #self.fields['employement_start'].widget.attrs['disabled'] = True
+                #self.fields['employement_end'].widget.attrs['readonly'] = True
+                #self.fields['employement_end'].widget.attrs['disabled'] = True
             except EmploymentTerms.DoesNotExist:
                 pass
 
