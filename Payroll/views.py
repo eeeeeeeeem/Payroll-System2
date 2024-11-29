@@ -48,6 +48,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
+
 @login_required
 def applications_to_review(request):
     if not request.user.is_hr():
@@ -711,6 +713,28 @@ def calculate_age(born):
 
 
 class UserView(APIView):
+
+    def get_gender_stats(self):
+        try:
+            gender_distribution = User.objects.values('gender').annotate(
+                count=Count('id')
+            ).order_by('gender')
+
+            total_employees = User.objects.count()
+            gender_data = {}
+
+            for item in gender_distribution:
+                percentage = (item['count'] / total_employees) * 100
+                gender_data[item['gender']] = {
+                    'count': item['count'],
+                    'percentage': round(percentage, 1)
+                }
+
+            return gender_data, total_employees
+        except Exception as e:
+            print(f"Error calculating stats: {e}")
+            return {}, 0
+
     def get_dashboard_stats(self, user):
         current_date = timezone.now().date()
         thirty_days_ago = current_date - datetime.timedelta(days=30)
@@ -875,6 +899,7 @@ class UserView(APIView):
 
         month_stats = self.calculate_month_stats(user)
         dashboard_stats = self.get_dashboard_stats(user)
+        gender_data, total_employees_count = self.get_gender_stats()
 
         users = User.objects.all()
         user_data = [
@@ -897,7 +922,9 @@ class UserView(APIView):
             'last_login': user.last_login,
             'punch_out': user.punch_out_time,
             'month_stats': month_stats,
-            'dashboard_stats': dashboard_stats
+            'dashboard_stats': dashboard_stats,
+            'gender_data': gender_data,
+            'total_employees': total_employees_count
         })
 
     def post(self, request):
