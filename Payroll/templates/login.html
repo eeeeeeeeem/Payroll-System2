@@ -224,35 +224,43 @@
 }
 
  .notification {
-        position: fixed;
-        top: -100px; /* Start above the viewport */
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #ff5252;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 1000;
-        transition: top 0.5s ease;
-        font-weight: 500;
-        text-align: center;
-        min-width: 300px;
-    }
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transition: top 0.5s ease;
+    font-weight: 500;
+    text-align: center;
+    min-width: 300px;
+}
 
-    .notification.show {
-        top: 20px; /* Slide to this position when shown */
-    }
+.notification.error {
+    background-color: #ff5252;
+    color: white;
+}
 
-    @keyframes shake {
-        0%, 100% { transform: translateX(-50%) translateX(0); }
-        25% { transform: translateX(-50%) translateX(-10px); }
-        75% { transform: translateX(-50%) translateX(10px); }
-    }
+.notification.success {
+    background-color: #4CAF50;
+    color: white;
+}
 
-    .notification.show.shake {
-        animation: shake 0.5s ease-in-out;
-    }
+.notification.show {
+    top: 20px;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(-50%) translateX(0); }
+    25% { transform: translateX(-50%) translateX(-10px); }
+    75% { transform: translateX(-50%) translateX(10px); }
+}
+
+.notification.show.shake {
+    animation: shake 0.5s ease-in-out;
+}
     </style>
 </head>
 <body>
@@ -291,10 +299,16 @@
         </div>
     </div>
 
- <script>
-    function showNotification(message) {
+<script>
+    function showNotification(message, type = 'error') {
         const notification = document.getElementById('notification');
         notification.textContent = message;
+        
+        // Remove any existing classes
+        notification.classList.remove('error', 'success');
+        
+        // Add new classes
+        notification.classList.add(type);
         notification.classList.add('show');
         notification.classList.add('shake');
         
@@ -314,7 +328,7 @@
         const password = document.getElementById('password').value;
         
         if (!email || !password) {
-            showNotification('Please fill in all fields');
+            showNotification('Please fill in all fields', 'error');
             return;
         }
         
@@ -329,17 +343,20 @@
             });
 
             if (response.ok) {
-                window.location.href = '/dashboard/';
+                showNotification('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/dashboard/';
+                }, 1500); // Redirect after 1.5 seconds so user can see success message
             } else {
-                showNotification('Invalid email or password');
+                showNotification('Invalid email or password', 'error');
             }
         } catch (error) {
-            showNotification('An error occurred. Please try again.');
+            showNotification('An error occurred. Please try again.', 'error');
         }
     });
 
     function socialLogin(provider) {
-        showNotification(`Sign in with ${provider} is not available at the moment`);
+        showNotification(`Sign in with ${provider} is not available at the moment`, 'error');
     }
 </script>
 </body>
