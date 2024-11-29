@@ -222,9 +222,41 @@
 .login-container {
     animation: fadeIn 0.5s ease-out;
 }
+
+ .notification {
+        position: fixed;
+        top: -100px; /* Start above the viewport */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #ff5252;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        transition: top 0.5s ease;
+        font-weight: 500;
+        text-align: center;
+        min-width: 300px;
+    }
+
+    .notification.show {
+        top: 20px; /* Slide to this position when shown */
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(-50%) translateX(0); }
+        25% { transform: translateX(-50%) translateX(-10px); }
+        75% { transform: translateX(-50%) translateX(10px); }
+    }
+
+    .notification.show.shake {
+        animation: shake 0.5s ease-in-out;
+    }
     </style>
 </head>
 <body>
+    <div id="notification" class="notification"></div>
     <div class="background-animation">
         <span></span>
         <span></span>
@@ -244,7 +276,7 @@
             </button>
         </div>
         <div class="divider"><span>OR</span></div>
-        <form action="{% url 'login' %}" method="post" onsubmit="return validateForm()">
+        <form action="{% url 'login' %}" method="post" id="loginForm">
             {% csrf_token %}
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
@@ -259,21 +291,56 @@
         </div>
     </div>
 
-    <script>
+ <script>
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.classList.add('show');
+        notification.classList.add('shake');
         
-        function socialLogin(provider) {
-            alert(`Sign in with ${provider} is not available at the moment`);
+        // Remove the notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.classList.remove('shake');
+            }, 500);
+        }, 3000);
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if (!email || !password) {
+            showNotification('Please fill in all fields');
+            return;
         }
-        function validateForm() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            if (email && password) {
-                return true;
+        
+        try {
+            const response = await fetch('{% url "login" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                window.location.href = '/dashboard/';
             } else {
-                alert('Please fill in all fields');
-                return false;
+                showNotification('Invalid email or password');
             }
+        } catch (error) {
+            showNotification('An error occurred. Please try again.');
         }
-    </script>
+    });
+
+    function socialLogin(provider) {
+        showNotification(`Sign in with ${provider} is not available at the moment`);
+    }
+</script>
 </body>
 </html>
