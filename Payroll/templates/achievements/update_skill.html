@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Progress Update</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6e62e5;
+            --secondary-color: #4CAF50;
+            --background-color: #f8f9ff;
+            --card-bg: #ffffff;
+            --exp-color: #FFD700;
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .skill-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(-45deg, #6e62e5, #4CAF50);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+            border-radius: 20px 20px 0 0 !important;
+            padding: 20px;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 6px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .skill-level-badge {
+            background: linear-gradient(45deg, #FFB900, #FF7730);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .xp-badge {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .skill-input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .skill-input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .skill-input-group input {
+            padding-left: 45px;
+            border-radius: 10px;
+            border: 2px solid #eef0f7;
+            height: 50px;
+        }
+
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .skill-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        }
+
+        .skill-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .level-up-animation {
+            animation: levelUp 1s ease-out;
+        }
+
+        @keyframes levelUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Update Skill Form -->
+        <div class="skill-card mb-4">
+            <div class="card-header text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-level-up-alt me-2"></i>
+                    Update Skill Progress
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="skill-input-group">
+                        <i class="fas fa-book"></i>
+                        <input type="text" class="form-control" id="skill_name" 
+                               name="skill_name" list="existing_skills" 
+                               placeholder="Enter or select skill name" required>
+                        <datalist id="existing_skills">
+                            {% for skill in current_skills %}
+                                <option value="{{ skill.skill_name }}">
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                    <div class="skill-input-group">
+                        <i class="fas fa-star"></i>
+                        <input type="number" class="form-control" id="experience_points" 
+                               name="experience_points" min="1" max="100" 
+                               placeholder="Enter XP gained (1-100)" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Skill
+                        </button>
+                        <a href="{% url 'achievement_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current Skills Overview -->
+        <div class="skill-card">
+            <div class="card-header text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-scroll me-2"></i>
+                    Current Skills
+                </h5>
+            </div>
+            <div class="skill-grid">
+                {% for skill in current_skills %}
+                <div class="skill-item">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">{{ skill.skill_name }}</h6>
+                        <span class="skill-level-badge">
+                            <i class="fas fa-crown me-1"></i>Level {{ skill.current_level }}
+                        </span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="xp-badge">
+                            <i class="fas fa-star me-1"></i>{{ skill.experience_points }} XP
+                        </span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ skill.experience_points|divisibleby:100 }}%" 
+                             aria-valuenow="{{ skill.experience_points|divisibleby:100 }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+        
+        function triggerLevelUp(skillItem) {
+            skillItem.classList.add('level-up-animation')
+            skillItem.addEventListener('animationend', () => {
+                skillItem.classList.remove('level-up-animation')
+            })
+        }
+        
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.progress-bar').forEach(bar => {
+                const width = bar.style.width
+                bar.style.width = '0%'
+                setTimeout(() => {
+                    bar.style.width = width
+                }, 100)
+            })
+        })
+    </script>
+</body>
+</html>

@@ -70,4 +70,10 @@ urlpatterns = [
     path('jobs/<int:job_id>/apply/', views.job_application, name='job_application'),
     path('application/<int:application_id>/review/', views.review_application, name='review_application'),
 
+    path('achievements/', views.achievement_dashboard, name='achievement_dashboard'),
+    path('achievements/list/', views.achievement_list, name='achievement_list'),
+    path('achievements/milestone/add/', views.record_milestone, name='record_milestone'),
+    path('achievements/skill/update/', views.update_skill, name='update_skill'),
+    path('achievements/milestone/delete/<int:milestone_id>/', views.delete_milestone, name='delete_milestone'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

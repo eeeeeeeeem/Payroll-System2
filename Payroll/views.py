@@ -32,7 +32,7 @@ from Payroll_System.wsgi import application
 from .forms import SalaryPaymentForm, SalarySlipRequestForm, JobPostingForm
 from Payroll.forms import PostForm, UserSettingsForm
 from Payroll.models import User, Post, Comment, JobTitle, EmploymentTerms, SalaryPayment, TimeRecord, SalarySlipRequest, \
-    JobPosting, JobApplication
+    JobPosting, JobApplication, UserAchievement, CareerMilestone, SkillLevel, Achievement
 from Payroll.serializers import UserSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -48,7 +48,177 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@login_required
+def achievement_dashboard(request):
+    user_achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
+    career_milestones = CareerMilestone.objects.filter(user=request.user).order_by('-date_achieved')
+    skill_levels = SkillLevel.objects.filter(user=request.user).order_by('-experience_points')
 
+    context = {
+        'completed_achievements': user_achievements.filter(completed=True),
+        'in_progress_achievements': user_achievements.filter(completed=False),
+        'total_points': request.user.total_achievement_points,
+        'rank': request.user.achievement_rank,
+        'milestones': career_milestones,
+        'skills': skill_levels,
+        'next_achievements': request.user.next_achievements
+    }
+    return render(request, 'achievements/dashboard.html', context)
+
+
+@login_required
+def achievement_list(request):
+    """View all available achievements"""
+    achievements = Achievement.objects.all().order_by('tier', 'points')
+    user_achievements = UserAchievement.objects.filter(user=request.user)
+
+    # Create a dict of achievement progress for quick lookup
+    progress_dict = {ua.achievement_id: ua.progress for ua in user_achievements}
+
+    for achievement in achievements:
+        achievement.user_progress = progress_dict.get(achievement.id, 0)
+
+    context = {
+        'achievements': achievements,
+        'user_rank': request.user.achievement_rank
+    }
+    return render(request, 'achievements/achievement_list.html', context)
+
+
+@login_required
+def record_milestone(request):
+    """Add a new career milestone"""
+    if request.method == 'POST':
+        milestone_type = request.POST.get('milestone_type')
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        date_achieved = request.POST.get('date_achieved')
+
+        milestone = CareerMilestone.objects.create(
+            user=request.user,
+            milestone_type=milestone_type,
+            title=title,
+            description=description,
+            date_achieved=date_achieved,
+            points_earned=50
+        )
+
+        # Check if any achievements should be unlocked
+        check_milestone_achievements(request.user, milestone)
+
+        messages.success(request, 'Career milestone recorded successfully!')
+        return redirect('achievement_dashboard')
+
+    return render(request, 'achievements/record_milestone.html', {
+        'milestone_types': CareerMilestone.MILESTONE_TYPES
+    })
+
+
+@login_required
+def update_skill(request):
+    if request.method == 'POST':
+        skill_name = request.POST.get('skill_name')
+        experience_gained = int(request.POST.get('experience_points', 0))
+
+        skill, created = SkillLevel.objects.get_or_create(
+            user=request.user,
+            skill_name=skill_name
+        )
+
+        skill.experience_points += experience_gained
+        if skill.experience_points >= (skill.current_level * 100):
+            skill.current_level += 1
+            messages.success(request, f'Congratulations! You reached level {skill.current_level} in {skill_name}!')
+
+        skill.save()
+
+        check_skill_achievements(request.user, skill)
+
+        return redirect('achievement_dashboard')
+
+    return render(request, 'achievements/update_skill.html', {
+        'current_skills': SkillLevel.objects.filter(user=request.user)
+    })
+
+
+def check_milestone_achievements(user, milestone):
+    milestone_count = CareerMilestone.objects.filter(user=user).count()
+
+    create_default_achievements()
+
+    first_milestone_achievement = Achievement.objects.filter(name='First Career Milestone').first()
+    if first_milestone_achievement:
+        UserAchievement.objects.get_or_create(
+            user=user,
+            achievement=first_milestone_achievement,
+            defaults={'completed': True, 'progress': 100}
+        )
+
+    # Check for multiple milestones achievement
+    if milestone_count >= 5:
+        multiple_milestone_achievement = Achievement.objects.filter(name='Career Pioneer').first()
+        if multiple_milestone_achievement:
+            UserAchievement.objects.get_or_create(
+                user=user,
+                achievement=multiple_milestone_achievement,
+                defaults={'completed': True, 'progress': 100}
+            )
+
+
+def check_skill_achievements(user, skill):
+    if skill.current_level >= 5:
+        master_achievement, created = Achievement.objects.get_or_create(
+            name=f'Master of {skill.skill_name}',
+            defaults={
+                'description': f'Reach level 5 in {skill.skill_name}',
+                'achievement_type': 'SKILL',
+                'tier': 'GOLD',
+                'points': 200,
+                'requirements': f'Reach level 5 mastery in {skill.skill_name}'
+            }
+        )
+
+        UserAchievement.objects.get_or_create(
+            user=user,
+            achievement=master_achievement,
+            defaults={'completed': True, 'progress': 100}
+        )
+
+def create_default_achievements():
+    default_achievements = [
+        {
+            'name': 'First Career Milestone',
+            'description': 'Record your first career milestone',
+            'achievement_type': 'PROJECT',
+            'tier': 'BRONZE',
+            'points': 50,
+            'requirements': 'Record your first career milestone'
+        },
+        {
+            'name': 'Career Pioneer',
+            'description': 'Record 5 career milestones',
+            'achievement_type': 'PROJECT',
+            'tier': 'SILVER',
+            'points': 100,
+            'requirements': 'Record 5 career milestones'
+        }
+    ]
+
+    for achievement_data in default_achievements:
+        Achievement.objects.get_or_create(
+            name=achievement_data['name'],
+            defaults=achievement_data
+        )
+
+@login_required
+def delete_milestone(request, milestone_id):
+    try:
+        milestone = CareerMilestone.objects.get(id=milestone_id, user=request.user)
+        milestone.delete()
+        messages.success(request, 'Milestone deleted successfully!')
+    except CareerMilestone.DoesNotExist:
+        messages.error(request, 'Milestone not found or you don\'t have permission to delete it.')
+    return redirect('achievement_dashboard')
 
 @login_required
 def applications_to_review(request):

@@ -618,6 +618,11 @@
             <i class="fas fa-chevron-right arrow"></i>
         </div>{% endcomment %}
 
+        <div class="menu-item" onclick="window.location.href='{% url 'achievement_dashboard' %}'">
+            <i class="fas fa-trophy"></i> Career Achievements
+            <i class="fas fa-chevron-right arrow"></i>
+        </div>
+
        <div class="time-tracking-section">
         <div class="time-display">
             <span class="clock" id="live-clock">13:17:03</span>
@@ -802,9 +807,9 @@
                     datasets: [{
                         data: counts,
                         backgroundColor: [
-                            'rgba(54, 162, 235, 0.8)',   // Blue
-                            'rgba(255, 99, 132, 0.8)',    // Pink
-                            'rgba(255, 206, 86, 0.8)',    // Yellow (for other options)
+                            'rgba(54, 162, 235, 0.8)', 
+                            'rgba(255, 99, 132, 0.8)',   
+                            'rgba(255, 206, 86, 0.8)',    
                         ],
                         borderWidth: 1
                     }]

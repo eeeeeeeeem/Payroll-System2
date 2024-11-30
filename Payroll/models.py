@@ -98,6 +98,41 @@ class User(AbstractBaseUser):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    @property
+    def total_achievement_points(self):
+        return UserAchievement.objects.filter(
+            user=self,
+            completed=True
+        ).aggregate(
+            total=models.Sum('achievement__points')
+        )['total'] or 0
+
+    @property
+    def achievement_rank(self):
+        points = self.total_achievement_points
+        if points >= 1000:
+            return "Master"
+        elif points >= 500:
+            return "Expert"
+        elif points >= 250:
+            return "Professional"
+        elif points >= 100:
+            return "Intermediate"
+        else:
+            return "Beginner"
+
+    @property
+    def next_achievements(self):
+        completed_achievements = UserAchievement.objects.filter(
+            user=self,
+            completed=True
+        ).values_list('achievement_id', flat=True)
+
+        return Achievement.objects.exclude(
+            id__in=completed_achievements
+        ).order_by('points')[:5]
+
+
 class EmploymentTerms(models.Model):
     id = models.AutoField(primary_key=True)
     employee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="employment_terms")
@@ -353,3 +388,100 @@ class JobApplication(models.Model):
 
     def __str__(self):
         return f"{self.applicant.get_full_name()} - {self.job.title}"
+
+
+class Achievement(models.Model):
+    ACHIEVEMENT_TYPES = (
+        ('YEARS', 'Years of Service'),
+        ('SKILL', 'Skill Mastery'),
+        ('PROJECT', 'Project Completion'),
+        ('TRAINING', 'Training Certification'),
+        ('MENTOR', 'Mentorship'),
+        ('INNOVATION', 'Innovation Award'),
+    )
+
+    TIER_CHOICES = (
+        ('BRONZE', 'Bronze'),
+        ('SILVER', 'Silver'),
+        ('GOLD', 'Gold'),
+        ('PLATINUM', 'Platinum'),
+    )
+
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    achievement_type = models.CharField(max_length=20, choices=ACHIEVEMENT_TYPES)
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES)
+    points = models.IntegerField(default=0)
+    icon = models.ImageField(upload_to='achievement_icons/', null=True, blank=True)
+    requirements = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.tier}"
+
+
+class UserAchievement(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='achievements')
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
+    earned_date = models.DateTimeField(auto_now_add=True)
+    progress = models.IntegerField(default=0)
+    completed = models.BooleanField(default=False)
+    evidence = models.TextField(null=True, blank=True)
+    validated_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='validated_achievements'
+    )
+
+    class Meta:
+        unique_together = ['user', 'achievement']
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.achievement.name}"
+
+
+class CareerMilestone(models.Model):
+    MILESTONE_TYPES = (
+        ('PROMOTION', 'Promotion'),
+        ('CERTIFICATION', 'Certification'),
+        ('AWARD', 'Award'),
+        ('PROJECT', 'Major Project'),
+        ('TRAINING', 'Training Completion'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='milestones')
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    milestone_type = models.CharField(max_length=20, choices=MILESTONE_TYPES)
+    date_achieved = models.DateField()
+    points_earned = models.IntegerField(default=0)
+    attachments = models.FileField(upload_to='milestone_attachments/', null=True, blank=True)
+    is_public = models.BooleanField(default=True)  # For sharing on profile
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.title}"
+
+
+class SkillLevel(models.Model):
+    LEVEL_CHOICES = (
+        (1, 'Beginner'),
+        (2, 'Intermediate'),
+        (3, 'Advanced'),
+        (4, 'Expert'),
+        (5, 'Master'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='skill_levels')
+    skill_name = models.CharField(max_length=255)
+    current_level = models.IntegerField(choices=LEVEL_CHOICES, default=1)
+    experience_points = models.IntegerField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+    endorsed_by = models.ManyToManyField(User, related_name='endorsed_skills')
+
+    class Meta:
+        unique_together = ['user', 'skill_name']
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.skill_name} (Level {self.current_level})"
