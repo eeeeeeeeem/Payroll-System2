@@ -419,6 +419,35 @@ class Achievement(models.Model):
     def __str__(self):
         return f"{self.name} - {self.tier}"
 
+    def calculate_progress(self, user):
+        """Calculate progress based on achievement type"""
+        user_achievement = UserAchievement.objects.filter(user=user, achievement=self).first()
+
+        if user_achievement:
+            if user_achievement.completed:
+                return 100
+            return user_achievement.progress
+
+        if self.achievement_type == 'YEARS':
+            # Calculate years of service
+            years = (timezone.now().date() - user.date_joined.date()).days / 365
+            return min(int((years / int(self.requirements)) * 100), 100)
+
+        elif self.achievement_type == 'PROJECT':
+            # Calculate based on milestones
+            milestone_count = CareerMilestone.objects.filter(user=user).count()
+            required_count = int(self.requirements.split()[0])  # Assumes format "X milestones"
+            return min(int((milestone_count / required_count) * 100), 100)
+
+        elif self.achievement_type == 'SKILL':
+            # Calculate based on skill level
+            skill_name = self.requirements.split()[-1]  # Assumes format "Reach level X in SKILL_NAME"
+            skill = SkillLevel.objects.filter(user=user, skill_name=skill_name).first()
+            if skill:
+                return min(int((skill.current_level / 5) * 100), 100)
+
+        return 0
+
 
 class UserAchievement(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='achievements')
@@ -440,6 +469,14 @@ class UserAchievement(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.achievement.name}"
+
+    def update_progress(self, new_progress):
+        """Update progress and check for completion"""
+        self.progress = min(new_progress, 100)
+        if self.progress >= 100 and not self.completed:
+            self.completed = True
+            self.earned_date = timezone.now()
+        self.save()
 
 
 class CareerMilestone(models.Model):

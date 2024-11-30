@@ -8,7 +8,7 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.http import JsonResponse, FileResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -68,11 +68,12 @@ def achievement_dashboard(request):
 
 @login_required
 def achievement_list(request):
-    """View all available achievements"""
     achievements = Achievement.objects.all().order_by('tier', 'points')
     user_achievements = UserAchievement.objects.filter(user=request.user)
 
-    # Create a dict of achievement progress for quick lookup
+    for achievement in achievements:
+        achievement.user_progress = achievement.calculate_progress(request.user)
+
     progress_dict = {ua.achievement_id: ua.progress for ua in user_achievements}
 
     for achievement in achievements:
@@ -80,14 +81,16 @@ def achievement_list(request):
 
     context = {
         'achievements': achievements,
-        'user_rank': request.user.achievement_rank
+        'total_points': UserAchievement.objects.filter(
+            user=request.user,
+            completed=True
+        ).aggregate(total=Sum('achievement__points'))['total'] or 0
     }
     return render(request, 'achievements/achievement_list.html', context)
 
 
 @login_required
 def record_milestone(request):
-    """Add a new career milestone"""
     if request.method == 'POST':
         milestone_type = request.POST.get('milestone_type')
         title = request.POST.get('title')
@@ -103,8 +106,16 @@ def record_milestone(request):
             points_earned=50
         )
 
-        # Check if any achievements should be unlocked
         check_milestone_achievements(request.user, milestone)
+
+        project_achievements = Achievement.objects.filter(achievement_type='PROJECT')
+        for achievement in project_achievements:
+            user_achievement, created = UserAchievement.objects.get_or_create(
+                user=request.user,
+                achievement=achievement
+            )
+            progress = achievement.calculate_progress(request.user)
+            user_achievement.update_progress(progress)
 
         messages.success(request, 'Career milestone recorded successfully!')
         return redirect('achievement_dashboard')
@@ -146,26 +157,50 @@ def check_milestone_achievements(user, milestone):
 
     create_default_achievements()
 
-    first_milestone_achievement = Achievement.objects.filter(name='First Career Milestone').first()
-    if first_milestone_achievement:
-        UserAchievement.objects.get_or_create(
+    project_achievements = Achievement.objects.filter(achievement_type='PROJECT')
+
+    for achievement in project_achievements:
+        user_achievement, created = UserAchievement.objects.get_or_create(
             user=user,
-            achievement=first_milestone_achievement,
-            defaults={'completed': True, 'progress': 100}
+            achievement=achievement
         )
 
-    # Check for multiple milestones achievement
-    if milestone_count >= 5:
-        multiple_milestone_achievement = Achievement.objects.filter(name='Career Pioneer').first()
-        if multiple_milestone_achievement:
-            UserAchievement.objects.get_or_create(
-                user=user,
-                achievement=multiple_milestone_achievement,
-                defaults={'completed': True, 'progress': 100}
-            )
+        requirements = achievement.requirements.lower()
+
+        if 'first' in requirements:
+            progress = 100 if milestone_count >= 1 else 0
+        else:
+            try:
+                # Extract numbers from the requirements string
+                required_count = int(''.join(filter(str.isdigit, requirements)))
+                progress = min(int((milestone_count / required_count) * 100), 100)
+            except (ValueError, ZeroDivisionError):
+                progress = 0
+
+        user_achievement.update_progress(progress)
+
+        if progress == 100 and not user_achievement.completed:
+            user_achievement.completed = True
+            user_achievement.earned_date = timezone.now()
+            user_achievement.save()
+
+        if progress == 100 and created:
+            messages.success(user, f'Achievement Unlocked: {achievement.name}!')
 
 
 def check_skill_achievements(user, skill):
+    skill_achievements = Achievement.objects.filter(achievement_type='SKILL')
+
+    for achievement in skill_achievements:
+        if skill.skill_name.lower() in achievement.requirements.lower():
+            user_achievement, created = UserAchievement.objects.get_or_create(
+                user=user,
+                achievement=achievement
+            )
+
+            progress = min(int((skill.current_level / 5) * 100), 100)
+            user_achievement.update_progress(progress)
+
     if skill.current_level >= 5:
         master_achievement, created = Achievement.objects.get_or_create(
             name=f'Master of {skill.skill_name}',
@@ -192,7 +227,7 @@ def create_default_achievements():
             'achievement_type': 'PROJECT',
             'tier': 'BRONZE',
             'points': 50,
-            'requirements': 'Record your first career milestone'
+            'requirements': 'Record 1 career milestone'
         },
         {
             'name': 'Career Pioneer',
@@ -201,6 +236,54 @@ def create_default_achievements():
             'tier': 'SILVER',
             'points': 100,
             'requirements': 'Record 5 career milestones'
+        },
+        {
+            'name': 'Career Veteran',
+            'description': 'Record 10 career milestones',
+            'achievement_type': 'PROJECT',
+            'tier': 'GOLD',
+            'points': 200,
+            'requirements': 'Record 10 career milestones'
+        },
+        {
+            'name': 'Training Initiate',
+            'description': 'Complete your first training certification',
+            'achievement_type': 'TRAINING',
+            'tier': 'BRONZE',
+            'points': 75,
+            'requirements': 'Complete 1 training certification'
+        },
+        {
+            'name': 'Skill Collector',
+            'description': 'Reach level 3 in any three skills',
+            'achievement_type': 'SKILL',
+            'tier': 'SILVER',
+            'points': 150,
+            'requirements': 'Reach level 3 in three different skills'
+        },
+        {
+            'name': 'Mentor Start',
+            'description': 'Begin mentoring your first team member',
+            'achievement_type': 'MENTOR',
+            'tier': 'SILVER',
+            'points': 125,
+            'requirements': 'Start mentoring 1 team member'
+        },
+        {
+            'name': 'Innovator',
+            'description': 'Submit your first innovation proposal',
+            'achievement_type': 'INNOVATION',
+            'tier': 'BRONZE',
+            'points': 100,
+            'requirements': 'Submit 1 innovation proposal'
+        },
+        {
+            'name': 'First Anniversary',
+            'description': 'Complete one year of service',
+            'achievement_type': 'YEARS',
+            'tier': 'SILVER',
+            'points': 200,
+            'requirements': 'Complete 1 year of service'
         }
     ]
 
