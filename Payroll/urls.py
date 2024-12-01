@@ -76,4 +76,6 @@ urlpatterns = [
     path('achievements/skill/update/', views.update_skill, name='update_skill'),
     path('achievements/milestone/delete/<int:milestone_id>/', views.delete_milestone, name='delete_milestone'),
 
+    path('preview-salary-slip/<int:payment_id>/', views.preview_salary_slip, name='preview_salary_slip'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

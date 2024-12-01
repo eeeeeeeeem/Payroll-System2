@@ -49,6 +49,38 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
+def preview_salary_slip(request, payment_id):
+    try:
+        payment = get_object_or_404(SalaryPayment, id=payment_id, user=request.user)
+
+
+        pdf_path = payment.get_pdf_path()
+
+        if not os.path.exists(pdf_path):
+            success = payment.generate_pdf()
+            if not success:
+                return HttpResponse("Error generating PDF", status=500)
+
+        if not os.path.exists(pdf_path):
+            return HttpResponse("PDF file not found", status=404)
+
+        try:
+            pdf_file = open(pdf_path, 'rb')
+            response = FileResponse(pdf_file)
+            response['Content-Type'] = 'application/pdf'
+            response[
+                'Content-Disposition'] = f'inline; filename="salary_slip_{payment.payment_date.strftime("%Y_%m")}.pdf"'
+            response['X-Frame-Options'] = 'SAMEORIGIN'
+            return response
+        except Exception as e:
+            print(f"Error opening PDF: {str(e)}")
+            return HttpResponse("Error opening PDF file", status=500)
+
+    except Exception as e:
+        print(f"Preview error: {str(e)}")
+        return HttpResponse("Error processing request", status=500)
+
+@login_required
 def achievement_dashboard(request):
     user_achievements = UserAchievement.objects.filter(user=request.user).select_related('achievement')
     career_milestones = CareerMilestone.objects.filter(user=request.user).order_by('-date_achieved')

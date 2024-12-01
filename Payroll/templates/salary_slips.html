@@ -1,272 +1,462 @@
-{% block content %}
-<div class="nav-container">
-    <a href="{% url 'dashboard' %}" class="dashboard-btn">
-        <i class="fas fa-arrow-left"></i>
-        <span>Back to Dashboard</span>
-    </a>
-    <div class="user-info">
-        <i class="fas fa-user"></i>
-        <span class="username">{{ user.username }}</span>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-<div class="container mt-4">
-    <h2 class="page-title">{{ title }}</h2>
-
-    <div class="row mt-4">
-        {% for payment in salary_payments %}
-        <div class="col-md-6 mb-4">
-            <div class="salary-card">
-                <div class="salary-header">
-                    <h5>Salary Statement</h5>
-                    <span class="period-badge">{{ payment.payment_date|date:"F Y" }}</span>
-                </div>
-
-                <div class="salary-details">
-                    <div class="detail-row">
-                        <span class="label">Base Salary</span>
-                        <span class="value">${{ payment.base_salary }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Total Payment</span>
-                        <span class="value highlight">${{ payment.total_payment }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Payment Date</span>
-                        <span class="value">{{ payment.payment_date }}</span>
-                    </div>
-                </div>
-
-                <div class="salary-actions">
-                    <button class="btn-preview" onclick="previewPDF('{{ payment.id }}')">
-                        <i class="fas fa-eye"></i> Preview
-                    </button>
-                    <a href="{% url 'download_salary_slip' payment.id %}" class="btn-download">
-                        <i class="fas fa-download"></i> Download
-                    </a>
-                    <form method="post" action="{% url 'regenerate_pdf' payment.id %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-regenerate">
-                            <i class="fas fa-sync"></i> Regenerate
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="empty-state">
-                <i class="fas fa-file-invoice"></i>
-                <p>No salary statements available at this time.</p>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- PDF Preview Modal -->
-<div class="modal fade" id="pdfPreviewModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Salary Statement Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <iframe id="pdfViewer" width="100%" height="600px" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Modern Minimalist Styles */
-    body {
-        background-color: #f8f9fa;
-        color: #333;
-    }
-
-    .nav-container {
-        max-width: 1200px;
-        margin: 20px auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 20px;
-    }
-
-    .dashboard-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 10px 20px;
-        background: #fff;
-        color: #333;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
-    }
-
-    .dashboard-btn:hover {
-        background: #f8f9fa;
-        transform: translateY(-1px);
-    }
-
-    .user-info {
-        display: flex;
-        align-items: center;
-        padding: 10px 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .page-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #333;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .salary-card {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        padding: 24px;
-        transition: all 0.2s ease;
-    }
-
-    .salary-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .salary-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .period-badge {
-        background: #f8f9fa;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-        color: #666;
-    }
-
-    .salary-details {
-        margin-bottom: 20px;
-    }
-
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid #f5f5f5;
-    }
-
-    .detail-row:last-child {
-        border-bottom: none;
-    }
-
-    .label {
-        color: #666;
-    }
-
-    .value {
-        font-weight: 500;
-    }
-
-    .value.highlight {
-        color: #2563eb;
-        font-weight: 600;
-    }
-
-    .salary-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .btn-preview, .btn-download, .btn-regenerate {
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .btn-preview {
-        background: #f8f9fa;
-        color: #333;
-    }
-
-    .btn-download {
-        background: #2563eb;
-        color: #fff;
-        text-decoration: none;
-    }
-
-    .btn-regenerate {
-        background: #f3f4f6;
-        color: #666;
-    }
-
-    .btn-preview:hover, .btn-download:hover, .btn-regenerate:hover {
-        transform: translateY(-1px);
-        opacity: 0.9;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 40px;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .empty-state i {
-        font-size: 48px;
-        color: #ccc;
-        margin-bottom: 16px;
-    }
-
-    .empty-state p {
-        color: #666;
-        margin: 0;
-    }
-
-    @media (max-width: 768px) {
         .nav-container {
-            flex-direction: column;
-            gap: 15px;
+            max-width: 1200px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #fff;
+            color: #333;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-btn:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: #fff;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .salary-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            transition: all 0.3s ease;
+            border: 1px solid #e0e0e0;
+            animation: fadeIn 0.5s ease-out;
+            margin: 0 auto;
+            max-width: 500px;
+            height: 100%;
+        }
+
+        .salary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .salary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .period-badge {
+            background: #e8f5e9;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .salary-details {
+            margin-bottom: 25px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f5f5f5;
+            transition: all 0.3s ease;
+        }
+
+        .detail-row:hover {
+            background-color: #f9f9f9;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .value {
+            font-weight: 600;
+        }
+
+        .value.highlight {
+            color: #1e88e5;
+            font-weight: 700;
+            font-size: 1.1em;
         }
 
         .salary-actions {
-            flex-direction: column;
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
         }
-    }
-</style>
-    <script>
-function previewPDF(paymentId) {
-    
-    const pdfUrl = `/preview-salary-slip/${paymentId}/`;
-    
-    document.getElementById('pdfViewer').src = pdfUrl;
-    
-    const previewModal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
-    previewModal.show();
+
+        .btn-preview, .btn-download, .btn-regenerate {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-preview {
+            background: #f1f8e9;
+            color: #33691e;
+        }
+
+        .btn-download {
+            background: #e3f2fd;
+            color: #1565c0;
+            text-decoration: none;
+        }
+
+        .btn-regenerate {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .btn-preview:hover, .btn-download:hover, .btn-regenerate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #bdbdbd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            color: #757575;
+            font-size: 18px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .salary-actions {
+                flex-direction: column;
+            }
+        }
+
+        .modal-xl {
+            max-width: 95%;
+        }
+
+        .pdf-container {
+            position: relative;
+            width: 100%;
+            height: 85vh;
+            background: #f5f5f5;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+        }
+
+        .pdf-container.loading .loading-indicator {
+            display: block;
+        }
+
+        .pdf-container.loading #pdfViewer {
+            opacity: 0;
+        }
+
+        #pdfViewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .pdf-container::before {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        #pdfViewer:not([src=""]) + .pdf-container::before {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .salary-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
-</script>
-{% endblock %}
+
+        .row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: -15px;
+}
+
+        .col-md-6 {
+    padding: 15px;
+    max-width: 600px;
+    width: 100%;
+}
+        
+        @media (max-width: 768px) {
+    .col-md-6 {
+        max-width: 100%;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    .salary-card {
+        max-width: 100%;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="nav-container">
+        <a href="{% url 'dashboard' %}" class="dashboard-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Dashboard</span>
+        </a>
+        <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span class="username">{{ user.username }}</span>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h2 class="page-title">{{ title }}</h2>
+
+        <div class="row mt-4">
+            {% for payment in salary_payments %}
+            <div class="col-md-6 mb-4">
+                <div class="salary-card">
+                    <div class="salary-header">
+                        <h5 class="mb-0 text-primary">Salary Statement</h5>
+                        <span class="period-badge">{{ payment.payment_date|date:"F Y" }}</span>
+                    </div>
+
+                    <div class="salary-details">
+                        <div class="detail-row">
+                            <span class="label">Base Salary</span>
+                            <span class="value">${{ payment.base_salary }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Total Payment</span>
+                            <span class="value highlight">${{ payment.total_payment }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Payment Date</span>
+                            <span class="value">{{ payment.payment_date }}</span>
+                        </div>
+                    </div>
+
+                    <div class="salary-actions">
+                        <button class="btn-preview" onclick="previewPDF('{{ payment.id }}')">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <a href="{% url 'download_salary_slip' payment.id %}" class="btn-download">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                        <form method="post" action="{% url 'regenerate_pdf' payment.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-regenerate">
+                                <i class="fas fa-sync"></i> Regenerate
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-file-invoice"></i>
+                    <p>No salary statements available at this time.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Salary Statement Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="pdf-container">
+                        <div class="loading-indicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading PDF...</p>
+                        </div>
+                        <iframe id="pdfViewer" width="100%" height="600px" frameborder="0"></iframe>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function previewPDF(paymentId) {
+            const modalElement = document.getElementById('pdfPreviewModal');
+            const viewer = document.getElementById('pdfViewer');
+
+            let modal;
+            if (typeof bootstrap !== 'undefined') {
+                modal = new bootstrap.Modal(modalElement);
+            } else {
+                modalElement.style.display = 'block';
+                modal = {
+                    show: () => modalElement.style.display = 'block',
+                    hide: () => modalElement.style.display = 'none'
+                };
+            }
+
+            viewer.src = `${window.location.origin}/preview-salary-slip/${paymentId}/`;
+
+            modal.show();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const modalElement = this.closest('.modal');
+                    if (typeof bootstrap !== 'undefined') {
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        if (modal) modal.hide();
+                    } else {
+                        modalElement.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        document.getElementById('pdfViewer').onerror = function() {
+            alert('Failed to load PDF preview. Please try downloading instead.');
+            const modalElement = document.getElementById('pdfPreviewModal');
+            if (typeof bootstrap !== 'undefined') {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) modal.hide();
+            } else {
+                modalElement.style.display = 'none';
+            }
+        };
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        document.querySelectorAll('.value.highlight').forEach(el => {
+            const value = parseFloat(el.innerText.replace('$', ''));
+            el.innerText = '$0';
+            animateValue(el, 0, value, 1000);
+        });
+    </script>
+</body>
+</html>
+
