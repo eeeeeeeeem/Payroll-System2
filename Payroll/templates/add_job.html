@@ -8,7 +8,38 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+    <div class="toast-container position-fixed top-20 end-0 p-3" style="z-index: 1500;">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="toast success-toast border-0 fade show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header border-0 {% if message.tags %}bg-{{ message.tags }}{% endif %} text-white">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong class="me-auto">Success</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    {{ message }}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
     <div class="container mt-4">
+    
+           <div class="info-banner mb-4">
+        <div class="info-content">
+            <div class="info-icon">
+                <i class="fas fa-info-circle fa-lg"></i>
+            </div>
+            <div class="info-text">
+                <h5 class="mb-0">Important Note</h5>
+                <p class="mb-0">Create a department first before creating a Job Posting</p>
+            </div>
+        </div>
+        <a href="{% url 'create_department' %}" class="btn btn-light btn-sm create-dept-btn">
+            <i class="fas fa-plus-circle me-1"></i>Create Department
+        </a>
+    </div>
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
@@ -160,19 +191,195 @@
         .alert {
             margin-bottom: 1rem;
         }
+        
+         .card {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+        background: linear-gradient(45deg, #4CAF50, #45a049);
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 1.8rem;
+    }
+
+    .card-header h2 {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    /* Form styling */
+    input, select, textarea {
+        border-radius: 8px !important;
+        border: 1px solid #e0e0e0 !important;
+        padding: 10px 15px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1) !important;
+        border-color: #4CAF50 !important;
+    }
+
+    /* Button styling */
+    .btn-primary {
+        background: linear-gradient(45deg, #4CAF50, #45a049);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-secondary {
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-weight: 500;
+    }
+
+    /* Toast styling */
+    .toast-container {
+        top: 20px !important;
+    }
+
+    .success-toast {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        animation: slideIn 0.5s ease-out;
+    }
+
+    .toast-header {
+        background: linear-gradient(45deg, #4CAF50, #45a049) !important;
+        padding: 12px 15px;
+    }
+
+    .toast-body {
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .info-banner {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    transition: all 0.3s ease;
+    animation: slideDown 0.5s ease-out;
+}
+
+.info-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+}
+
+.info-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.info-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-text h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.info-text p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.create-dept-btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #2980b9 !important;
+    border: none !important;
+    padding: 8px 20px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.create-dept-btn:hover {
+    background: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 1000);
+   <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all toasts
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(toastEl => {
+        const toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
         });
-    </script>
+        toast.show();
+    });
+
+    // Add animation class to form inputs on focus
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.classList.add('form-control-focus');
+        });
+        input.addEventListener('blur', function() {
+            this.classList.remove('form-control-focus');
+        });
+    });
+});
+</script>
 </body>
 </html>

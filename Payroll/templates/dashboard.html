@@ -555,7 +555,32 @@
         font-size: 0.9em;
     }
     
-    
+    .tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
     
     </style>
 </head>
@@ -578,7 +603,7 @@
         {% if user.role == 'HR' %}
         <div class="menu-item" onclick="toggleSubMenu('employeesSubMenu')">
             <i class="fas fa-users"></i> Employees
-            <i class="fas fa-chevron-down arrow" id="employeesArrow"></i>
+            <i class="fas fa-chevron-right arrow" id="employeesArrow"></i>
         </div>
         <div class="submenu" id="employeesSubMenu">
             <div class="menu-item" onclick="loadContent('all_employee')">
@@ -631,12 +656,13 @@
        
         <div class="work-status {% if not user.punch_out_time %}active{% endif %}">
             <i class="fas fa-circle status-dot"></i>
-            <span id="status-text" style="text-decoration-color: black">
+            <span id="status-text" style="text-decoration-color: black; cursor: default" class="tooltip">
                 {% if not user.punch_out_time %}
-                    Currently Working
+                    Currently Working Logout first to punch-out
                 {% else %}
                     Not Working
                 {% endif %}
+            <span class="tooltiptext">So that it will Reflect the TimeRecord</span>
             </span>
         </div>
 
@@ -862,8 +888,7 @@
         }
 
         document.getElementById('employeesSubMenu');
-
-        // Animate stat cards
+        
         const statCards = document.querySelectorAll('.stat-card');
         statCards.forEach((card, index) => {
             card.style.animationDelay = `${index * 0.1}s`;
